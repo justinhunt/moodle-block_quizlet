@@ -81,7 +81,7 @@ class block_quizletquiz_edit_form extends block_edit_form {
              //show a login button
             $mform->addElement('static', 'quizletauthorize', get_string('quizletloginlabel', 'quizletimport'), '<a href="' . $qiz->fetch_auth_url() . '">' . get_string('quizletlogin', 'quizletimport') . '</a>');
             $mform->addElement('text', 'quizletset', get_string('quizletsetinput', 'quizletimport'),array('size' => '64'));
-                                         
+            $mform->setType('quizletset', PARAM_TEXT);                             
               
          }
          

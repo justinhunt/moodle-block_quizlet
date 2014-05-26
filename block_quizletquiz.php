@@ -25,7 +25,7 @@ class block_quizletquiz extends block_base {
 
         // set view block permission to course:mod/glossary:export to prevent students etc to view this block
         $course = $this->page->course; 
-        $context = get_context_instance(CONTEXT_COURSE, $course->id);
+        $context = context_course::instance($course->id);
         if (!has_capability('block/quizletquiz:export', $context)) {
             return;
         }

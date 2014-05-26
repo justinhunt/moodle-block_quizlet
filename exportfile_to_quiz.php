@@ -1,24 +1,17 @@
 <?php   // $Id: exportfile.php,v 1.8 2007/08/17 12:49:31 skodak Exp $
-	define('BGETQ_CONCEPT',      '0');
-	define('BGETQ_FIRSTMODIFIED', '2');
-	define('BGETQ_LASTMODIFIED', '1');
-	define('BGETQ_RANDOMLY',     '3');
 
 	global $SESSION, $DB;	
 	
-    require_once("../../config.php");
+	require_once("../../config.php");
+	require_once($CFG->dirroot.'/mod/quizletimport/quizlet.php');
     require_once("../../lib/filelib.php");
-	//
-	//
-	//
-	//
+
     $id = required_param('id', PARAM_INT);      // Course Module ID
-    $cat = optional_param('cat',0, PARAM_ALPHANUM);
-    $limitnum = optional_param('limitnum',0, PARAM_ALPHANUM);
-    $sortorder = optional_param('sortorder',0, PARAM_ALPHANUM);
-    $entriescount = optional_param('entriescount',0, PARAM_ALPHANUM);
-    $questiontype =  optional_param('questiontype',0, PARAM_ALPHANUMEXT);  
-    if (! $cm = get_coursemodule_from_id('glossary', $id)) {
+    $quizletsets = optional_param_array('quizletset',array(), PARAM_ALPHANUMEXT);
+    $exporttype = optional_param('exporttype',0, PARAM_ALPHANUMEXT);
+    $questiontypes =  optional_param_array('questiontype',array(), PARAM_ALPHANUMEXT);  
+	$activitytypes =  optional_param_array('activitytype',array(), PARAM_ALPHANUMEXT); 
+    if (! $cm = get_coursemodule_from_id('quizletimport', $id)) {
         error("Course Module ID was incorrect");
     }
 
@@ -26,149 +19,140 @@
         error("Course is misconfigured");
     }
 
-    if (! $glossary = $DB->get_record("glossary", array('id'=>$cm->instance))) {
-        error("Course module is incorrect");
-    }
-
     require_login($course->id, false, $cm);
     
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-    require_capability('block/quizletquiz:export', $context);
+   // require_capability('block/quizletquiz:export', $context);
+	/*
 
     $filename = clean_filename(strip_tags(format_string($glossary->name,true)).'.xml');
     $giftcategoryname = $glossary->name;
+	*/
+	/*
+	echo  'QUIZLETSETS<br />';
+	 foreach($quizletsets as $set){
+		echo $set . '<br />';
+	 }
+	 
+	 echo  'ACTIVITYTYPES<br />';
+	  foreach($activitytypes as $activity){
+		echo $activity . '<br />';
+	 }
+	 
+	 echo  'QUESTIONTYPES<br />';
+	 foreach($questiontypes as $qtype){
+		echo $qtype . '<br />';
+	 }
+	
+	return;
+	*/
     
-    $limitfrom = 0;
-    switch ($sortorder) {
-			case BGETQ_RANDOMLY:
-				if (!isset($limitnum)) {
-					$limitnum = 0;
-				}
-				$i = rand(1,$entriescount - $limitnum);
-                $limitfrom = $i-1;
-				$sortorder = '';
-				break;
-			case BGETQ_CONCEPT:
-				$sortorder = 'ORDER BY concept ASC';
-				break;
-			case BGETQ_FIRSTMODIFIED:
-				$sortorder = 'ORDER BY timemodified ASC';
-				break;
-			case BGETQ_LASTMODIFIED:
-				$sortorder = 'ORDER BY timemodified DESC';
-				break;
+	
+	//if drag and drop export, make file
+	if($exporttype=='dragdrop'){
+		$filename = "quizletset_dragdrop.txt";
+		$content="";
+		foreach($quizletsets as $qset){
+			$qset_params = explode("-", $qset);
+    		$qsetid = $qset_params[0];
+    		$qsetname = $qset_params[1];
+    		
+			 foreach($activitytypes as $activity){
+				$content.="name=$qsetname,activitytype=$activity,quizletset=$qsetid,mintime=0,showcountdown=0,showcompletion=0\n\n";
+			}
+		}
+		send_file($content, $filename, 0, 0, true, true); 
+		return;
 	}
-    if ($limitnum) {
-    	$limit = "LIMIT $limitfrom, $limitnum ";
-    } else {
-    	$limit = '';
-    }
 	
-    $catfrom = "";
-    $catwhere = "";
 	
-	if ($cat) {
-		$category = $DB->get_record('glossary_categories', array('id'=>$cat));
-        $categoryname = $category->name;     	
-    	$giftcategoryname .= '_'.$categoryname;
-    	$catfrom = ", mdl_glossary_entries_categories c ";
-    	$catwhere = "and ge.id = c.entryid and c.categoryid = $cat";
-	}    	
-	$sql = "SELECT * FROM ".$CFG->prefix."glossary_entries ge $catfrom "
-    . "WHERE ge.glossaryid = $glossary->id "
-    . "AND ge.approved "
-    . "$catwhere "
-    . "$sortorder "
-    . "$limit";
-    
+		//Initialize Quizlet
+	//assumption here is that we authenticated back on the mod_form 
+	 $args = array( 'api_scope' => 'read');
+	$qiz  = new quizlet($args);
+	//if authenticated we can start fetching data
+	$select = "";
+	if($qiz->is_authenticated()){
+		$qset_ids = array();
+		foreach($quizletsets as $qset){
+			$qset_params = explode("-", $qset);
+    		$qset_ids[] = $qset_params[0];
+		}
+		
+
+		$endpoint = "/sets";
+		$qset_ids_string =  implode(",", $qset_ids);
+		$params=array();
+		//sample two sets
+		//$qset_ids_string = "415,13381475";
+		//animals
+		//$qset_ids_string = "10622858";
+		$params['set_ids']=$qset_ids_string;
+		
+		/*
+		$params=array();
+		$params['term']='silla';
+		$params['q']='spanish';
+		$endpoint = '/search/sets';
+		*/
+		$qiz_return = $qiz->request($endpoint,$params);
+		
+		/*
+		if($qiz_return['success']){
+			foreach ($qiz_return['data'] as $quizletdata){
+				print_r($quizletdata);
+			}
+		}else{
+			print_r($qiz_return);
+			echo "<br/> idstring: " . $qset_ids_string;
+		}
+		*/
+		if(!$qiz_return['success']){
+			print_r($qiz_return);
+			echo "<br/> idstring: " . $qset_ids_string;
+			return;
+		}
+			
+	}else{
+		echo "uh oh: not authenticated.";
+		return;
+	}
+	
+	
     // build XML file - based on moodle/question/xml/format.php
     // add opening tag
     $expout = "";
     $counter=0;
-
-    $expout .= "\n\n<!-- question: $counter  -->\n";
-            
-           $categorypath = writetext( $giftcategoryname );
-           $expout .= "  <question type=\"category\">\n";
-           $expout .= "    <category>\n";
-           $expout .= "        $categorypath\n";
-           $expout .= "    </category>\n";
-           $expout .= "  </question>\n";        
-    	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
-           
-    if ( $entries = $DB->get_records_sql($sql) ) {
-        $questiontype_params = explode("_", $questiontype);
-    	$questiontype = $questiontype_params[0];
-        if ($questiontype == 'multichoice') {
-            $answernumbering = $questiontype_params[1]; 
-        	$concepts = array();    
-            foreach ($entries as $entry) {
-                $concepts[] = $entry->concept;          
-            }
-        } else {
-        	$usecase = $questiontype_params[1];
-        }
-		foreach ($entries as $entry) {
-    		$counter++;
-            $definition = trusttext_strip($entry->definition);
-            $fs = get_file_storage();            
-            $entryfiles = $fs->get_area_files($context->id, 'mod_glossary', 'entry', $entry->id);
-            $concept = trusttext_strip($entry->concept);
-        	$expout .= "\n\n<!-- question: $counter  -->\n";            
-    		$name_text = writetext( $concept );
-            $qtformat = "html";
-            $expout .= "  <question type=\"$questiontype\">\n";
-            $expout .= "    <name>$name_text</name>\n";
-            $expout .= "    <questiontext format=\"$qtformat\">\n";
-            $expout .= writetext( $definition );;
-            $expout .= writefiles($entryfiles);
-            $expout .= "    </questiontext>\n";
-
-		if ($questiontype == 'multichoice') {
-                $expout .= "    <shuffleanswers>true</shuffleanswers>\n";
-                $expout .= "    <answernumbering>".$answernumbering."</answernumbering>\n";
-                $concepts2 = $concepts;
-                foreach ($concepts2 as $key => $value) {
-                   if ($value == $concept) {
-                       unset($concepts2[$key]);
-                    }
-                }
-                $rand_keys = array_rand($concepts2, 3);
-                for ($i=0; $i<4; $i++) {
-                    if ($i === 0) {
-                        $percent = 100;
-                        $expout .= "      <answer fraction=\"$percent\">\n";
-                        $expout .= writetext( $concept,3,false )."\n";
-                        $expout .= "      <feedback>\n";
-                        $expout .= "      <text>\n";
-                        $expout .= "      </text>\n";
-                        $expout .= "      </feedback>\n";                    
-                        $expout .= "    </answer>\n";
-                    } else {
-                        $percent = 0;
-                        $distracter = $concepts2[$rand_keys[$i-1]];
-                        $expout .= "      <answer fraction=\"$percent\">\n";
-                        $expout .= writetext( $distracter,3,false )."\n";
-                        $expout .= "      <feedback>\n";
-                        $expout .= "      <text>\n";
-                        $expout .= "      </text>\n";
-                        $expout .= "      </feedback>\n";
-                        $expout .= "    </answer>\n";
-                    }
-                }
-            } else { // shortanswer
-                
-                $expout .= "    <usecase>$usecase</usecase>\n ";
-                $percent = 100;
-                $expout .= "    <answer fraction=\"$percent\">\n";
-                $expout .= writetext( $concept,3,false );
-                $expout .= "    </answer>\n";
-            }
-            // close the question tag
-            $expout .= "</question>\n";
-        }
-    }
-        // initial string;
+	$filename ="quizletimportdata.xml";
+	//nesting on quizlet set, then question type, then each element in quizlet set as a question
+	foreach	($qiz_return['data'] as $quizletdata){
+		  if ( $entries = $quizletdata->terms) {
+				//for each passed in question type
+				foreach ($questiontypes as $qtype){
+					$questiontype_params = explode("_", $qtype);
+					$questiontype = $questiontype_params[0];
+			
+					//print out category
+					$expout .= print_category($quizletdata, $qtype);
+			
+					if ($questiontype == 'multichoice') {
+						$answerstyle = $questiontype_params[1]; 
+						$terms = array();    
+						foreach ($entries as $entry) {
+							$terms[] = $entry->term;          
+						}
+					} else {
+						$answerstyle = $questiontype_params[1];
+					}
+					foreach ($entries as $entry) {
+						$counter++;
+						$expout .= data_to_question($entry,$terms,$questiontype, $answerstyle,$counter);
+					}
+				}//end of for each qtype
+			}//end of if entries
+	}//end of for each quizlet data
+    	
+    	 // initial string;
         // add the xml headers and footers
         $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" .
                        "<quiz>\n" .
@@ -176,11 +160,108 @@
                        "</quiz>";
 
         // make the xml look nice
-	$content = xmltidy( $content );	
-	// reset glossary export	
-	$SESSION->block_quizletquiz->status = '';
+		$content = xmltidy( $content );	
+		//return the content
+		send_file($content, $filename, 0, 0, true, true);  
+		return;
+         
+            
+    function clean_name($originalname){
+    	return preg_replace("/[^A-Za-z0-9]/", "_", $originalname);
+    }        
+    
+    function print_category($quizletdata, $questiontype){
+		   $ret = "";
+		   $cleanname = clean_name($quizletdata->title);
+		   $categorypath = writetext( 'quizletquestions/' . $cleanname . '/' . $questiontype );
+           $ret  .= "  <question type=\"category\">\n";
+           $ret  .= "    <category>\n";
+           $ret  .= "        $categorypath\n";
+           $ret  .= "    </category>\n";
+           $ret  .= "  </question>\n"; 
+		return $ret;
+	}
 	
-	send_file($content, $filename, 0, 0, true, true);    
+	function data_to_question($entry,$allterms, $questiontype, $answerstyle, $counter){
+	
+		$ret = "";
+		$definition = trusttext_strip($entry->definition);
+            $currentterm = trusttext_strip($entry->term);
+            $currentimage = $entry->image;
+            
+        	$ret .= "\n\n<!-- question: $counter  -->\n";            
+    		$name_text = writetext( $currentterm );
+            $qtformat = "html";
+            $ret .= "  <question type=\"$questiontype\">\n";
+            $ret .= "    <name>$name_text</name>\n";
+            $ret .= "    <questiontext format=\"$qtformat\">\n";
+            if($entry->image){
+            	 $ret .= writeimage( $currentimage);
+            }else{
+            	$ret .= writetext( $definition );
+            }
+           
+            $ret .= "    </questiontext>\n";
+
+				if ($questiontype == 'multichoice') {
+					$answerscount = 4;
+					$ret .= "    <shuffleanswers>true</shuffleanswers>\n";
+					$ret .= "    <answernumbering>".$answerstyle."</answernumbering>\n";
+					//$terms2 = $terms;
+					//try terms2 simply as allterms
+					foreach ($allterms as $key => $value) {
+					   if ($value == $currentterm) {
+						   unset($allterms[$key]);
+						}//end of if
+					}//end of foreach
+					
+					//make sure we have enough terms in the quizlet set to make the question
+					//if not use fewer answers
+					if(count($allterms)<$answerscount){
+						$answerscount = count($allterms) + 1;
+					}
+					
+					
+					//get a random list of distractor answers
+					//if we only have 1 distratctor, it won't be an array so we make one
+					$rand_keys = array_rand($allterms, $answerscount-1);
+					if(!is_array($rand_keys)){
+						$rand_keys=array($rand_keys);
+					}
+					
+					for ($i=0; $i<$answerscount; $i++) {
+						if ($i === 0) {
+							$percent = 100;
+							$ret .= "      <answer fraction=\"$percent\">\n";
+							$ret .= writetext( $currentterm,3,false )."\n";
+							$ret .= "      <feedback>\n";
+							$ret .= "      <text>\n";
+							$ret .= "      </text>\n";
+							$ret .= "      </feedback>\n";                    
+							$ret .= "    </answer>\n";
+						} else {
+							$percent = 0;
+							$distracter = $allterms[$rand_keys[$i-1]];
+							$ret .= "      <answer fraction=\"$percent\">\n";
+							$ret .= writetext( $distracter,3,false )."\n";
+							$ret .= "      <feedback>\n";
+							$ret .= "      <text>\n";
+							$ret .= "      </text>\n";
+							$ret .= "      </feedback>\n";
+							$ret .= "    </answer>\n";
+						} //end of if $i === 0
+					}//end of for i loop
+				} else { // shortanswer				
+					$ret .= "    <usecase>$answerstyle</usecase>\n ";
+					$percent = 100;
+					$ret .= "    <answer fraction=\"$percent\">\n";
+					$ret .= writetext( $currentterm,3,false );
+					$ret .= "    </answer>\n";
+				}//end of if
+            // close the question tag
+            $ret .= "</question>\n";		
+            return $ret;
+	}//end of function            
 	
     /**
      * generates <text></text> tags, processing raw text therein
@@ -205,20 +286,38 @@
         return $xml;
     }
 
-    function writefiles($files, $encoding='base64') {
-        if (empty($files)) {
+    function writeimage($image, $encoding='base64') {
+        if (!($image)) {
             return '';
         }
+        $filename = basename($image->url);
+        $width = $image->width;
+        $height = $image->height;
+        $imagestring = fetchimage($image->url);
         $string = '';
-        foreach ($files as $file) {
-            if ($file->is_directory()) {
-                continue;
-            }
-            $string .= '<file name="' . $file->get_filename() . '" encoding="' . $encoding . '">';
-            $string .= base64_encode($file->get_content());
-            $string .= '</file>';
-        }
+		$string .= '<text><![CDATA[<p><img src="@@PLUGINFILE@@/' . $filename . '" alt="' . $filename . '" width="' . $width . '"  height="' . $height . '" /></p>]]></text>';
+		$string .= '<file name="' . $filename . '" path="/" encoding="' . $encoding . '">';
+		$string .= base64_encode($imagestring);
+		$string .= '</file>';
+
         return $string;
+    }
+    
+    function fetchimage($url){
+		$headers[] = 'Accept: image/gif, image/x-bitmap, image/jpeg, image/pjpeg';              
+		$headers[] = 'Connection: Keep-Alive';         
+		$headers[] = 'Content-type: application/x-www-form-urlencoded;charset=UTF-8';         
+		$user_agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)';         
+		$process = curl_init($url);         
+		curl_setopt($process, CURLOPT_HTTPHEADER, $headers);         
+		curl_setopt($process, CURLOPT_HEADER, 0);         
+		curl_setopt($process, CURLOPT_USERAGENT, $user_agent);         
+		curl_setopt($process, CURLOPT_TIMEOUT, 30);         
+		curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);         
+		curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);         
+		$return = curl_exec($process);         
+		curl_close($process);         
+		return $return;     
     }
     
 	function xmltidy( $content ) {
