@@ -1,27 +1,25 @@
 <?php   // $Id: exportfile.php,v 1.8 2007/08/17 12:49:31 skodak Exp $
 
-	global $SESSION, $DB;	
+	global $SESSION, $DB, $USER;	
 	
 	require_once("../../config.php");
 	require_once($CFG->dirroot.'/mod/quizletimport/quizlet.php');
     require_once("../../lib/filelib.php");
+    
+    require_login();
+	if (isguestuser()) {
+		die();
+	}
 
     $id = required_param('id', PARAM_INT);      // Course Module ID
     $quizletsets = optional_param_array('quizletset',array(), PARAM_ALPHANUMEXT);
     $exporttype = optional_param('exporttype',0, PARAM_ALPHANUMEXT);
     $questiontypes =  optional_param_array('questiontype',array(), PARAM_ALPHANUMEXT);  
 	$activitytypes =  optional_param_array('activitytype',array(), PARAM_ALPHANUMEXT); 
-    if (! $cm = get_coursemodule_from_id('quizletimport', $id)) {
-        error("Course Module ID was incorrect");
-    }
 
-    if (! $course = $DB->get_record("course", array('id' => $cm->course))) {
-        error("Course is misconfigured");
-    }
+$context = context_user::instance($USER->id);
+//require_capability('moodle/user:viewalldetails', $context);
 
-    require_login($course->id, false, $cm);
-    
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
    // require_capability('block/quizletquiz:export', $context);
 	/*
 
@@ -80,7 +78,7 @@
 		}
 		
 
-		$endpoint = "/sets";
+		$endpoint = "sets";
 		$qset_ids_string =  implode(",", $qset_ids);
 		$params=array();
 		//sample two sets
@@ -123,7 +121,7 @@
     // add opening tag
     $expout = "";
     $counter=0;
-	$filename ="quizletimportdata.xml";
+	$filename ="quizletquizdata.xml";
 	//nesting on quizlet set, then question type, then each element in quizlet set as a question
 	foreach	($qiz_return['data'] as $quizletdata){
 		  if ( $entries = $quizletdata->terms) {

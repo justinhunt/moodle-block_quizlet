@@ -35,7 +35,7 @@ require_once($CFG->dirroot.'/mod/quizletimport/quizlet.php');
 class block_quizletquiz_edit_form extends block_edit_form {
     protected function specific_definition($mform) {
         global $DB, $SESSION;
-        $SESSION->block_quizletquiz->status = 'defined';
+        //$SESSION->block_quizletquiz->status = 'defined';
         
         //Initialize Quizlet and deal with oauth etc
         //i  - send off to auth screen
@@ -56,7 +56,7 @@ class block_quizletquiz_edit_form extends block_edit_form {
         //if authenticated fill our select box with users sets
         //otherwise show a login/authorize link
         if($qiz->is_authenticated()){
-            $endpoint = '/users/@username@/sets';
+            $endpoint = 'users/@username@/sets';
             $params = null;
             /*
             $params=array();

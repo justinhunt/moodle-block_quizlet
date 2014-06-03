@@ -5,6 +5,10 @@ class block_quizletquiz extends block_base {
         $this->title = get_string('pluginname','block_quizletquiz');
        // $SESSION->block_quizletquiz->status = '';
     }
+    
+    function has_config() {
+        return true;
+    }
 
     function specialization() {
         global $CFG, $DB, $OUTPUT, $PAGE;
@@ -30,13 +34,14 @@ class block_quizletquiz extends block_base {
             return;
         }
         
-        if(($this->content == null)){
+       // if(($this->content == null)){
             
             $this->content = new stdClass;
-            $this->content->text = '';
+            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('id'=>$course->id));
+            $this->content->text = "<a href='" . $url->out(false). "'>quizleting</a>";
             $this->content->footer = '';
-  
-        }
+  return $this->content;
+       // }
         
         
         // get list of all current course glossaries
