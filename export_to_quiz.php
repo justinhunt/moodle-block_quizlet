@@ -1,26 +1,35 @@
 <?php
 /// original file: mod/glossary/export.php
 /// modified by JR 17 JAN 2011
-	global  $USER;	
+	global  $USER, $COURSE;	
 
 require_once("../../config.php");
 require_once($CFG->dirroot.'/mod/quizletimport/quizlet.php');
-//require_once("lib.php");
+
 require_login();
 if (isguestuser()) {
     die();
 }
 
-
-$id = required_param('id', PARAM_INT);      // Course Module ID
-$courseid = optional_param('courseid',$id, PARAM_INT);      // Course Module ID
-$oauth2code = optional_param('oauth2code', 0, PARAM_RAW);
-$url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('id'=>$courseid));
-
+//Set up page
 $context = context_user::instance($USER->id);
 //require_capability('moodle/user:viewalldetails', $context);
-
 $PAGE->set_context($context);
+
+
+//get quizlet search form
+$search_form = new quizlet_search_form();
+$data = $search_form->get_data();
+
+
+//make double sure we have the course id in id
+if(empty($data->courseid)){
+	$courseid = optional_param('courseid',$COURSE->id, PARAM_INT);
+}
+
+//prepare rest of page and data
+$oauth2code = optional_param('oauth2code', 0, PARAM_RAW);
+$url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$courseid));
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
 
@@ -51,7 +60,7 @@ echo $OUTPUT->header();
 		$authlink= '<a href="' . $qiz->fetch_auth_url() . '">' . get_string('quizletlogin', 'block_quizletquiz') . '</a>';
          qdisplayerror($authlink);
 	}else{
-		qdisplayforms($qiz, $id);
+		qdisplayforms($qiz, $courseid, $search_form, $data);
 	}
 
 echo $OUTPUT->footer();
@@ -60,84 +69,39 @@ function qdisplayerror($qmessage) {
      echo $qmessage;
 }//end of func
 
-function qdisplayforms($qiz, $id){
+function qdisplayforms($qiz, $courseid, $search_form, $data){
 
 global $OUTPUT;
 
-	$param_searchtext = optional_param('searchtext','', PARAM_TEXT);
-	$param_searchtype = optional_param('searchtype','', PARAM_TEXT);
-	
-	//here add searchable fields
-	$searchform = '<form action="export_to_quiz.php" method="post">';
-	$searchform  .= '<input type="text" name="searchtext"  /><br />';
-	$searchform  .='<input type="hidden" name="id" value="' . $id . '"/>'; 
-	$searchform  .='<input type="submit" name="searchtype" value="' . get_string("searchmysets", "block_quizletquiz") . '" />';
-	$searchform  .='<input type="submit" name="searchtype" value="' . get_string("searchtitles", "block_quizletquiz") . '" />';
-	$searchform  .='<input type="submit" name="searchtype" value="' . get_string("searchusers", "block_quizletquiz") . '" />';
-	//never works? not even from their website api tester
-	//$searchform  .='<input type="submit" name="searchtype" value="' . get_string("searchterms", "block_quizletquiz") . '" />';
-	$searchform  .='</form>';
+	$param_searchtext = '';
+	$param_searchtype = '';
+	if(!empty($data->searchtext)){
+		$param_searchtext = $data->searchtext;
+	}
+	if(!empty($data->searchtype)){
+		$param_searchtype = $data->searchtype;
+	}
 	
 	//if authenticated fill our select box with users sets
 	//otherwise show a login/authorize link
 	$select = "";
 	if($qiz->is_authenticated()){
 		//default is to list our sets
-		$params = null;
-		if($param_searchtext =='' || $param_searchtype== get_string("searchmysets", "block_quizletquiz")){
-			$endpoint = 'users/@username@/sets';
-			$mysets = $qiz->request($endpoint,$params);
-			if($mysets['success']){
-				$mysetsdata = $mysets['data'];
-			}
-		}else{
-			switch ($param_searchtype){	
-				case get_string("searchusers", "block_quizletquiz"):
-					$params=array();
-					$params['creator']=$param_searchtext;
-					$endpoint = 'search/sets';
-					break;
-				case get_string("searchterms", "block_quizletquiz"):
-					$params=array();
-					$params['term']=$param_searchtext;
-					$endpoint = 'search/sets';
-					break;	
-				case get_string("searchtitles", "block_quizletquiz"):
-				default:
-					$params=array();
-					$params['q']=$param_searchtext;
-					$endpoint = 'search/sets';
-					break;	
-			}
-			
-			$mysets = $qiz->request($endpoint,$params);
-			if($mysets['success']){
-				$mysetsdata = $mysets['data']->sets;
-			}
-		}
-
-			if($mysets['success']){
-				$select_qexport = $qiz->fetch_set_selectlist($mysetsdata,'quizletset_qexport',true);
-				$select_ddrop = $qiz->fetch_set_selectlist($mysetsdata,'quizletset_ddrop',true);
-				/*
-				$select = "<select name='quizletset[]' multiple size='10'>";
-				$options = array();
-				foreach ($mysetsdata as $quizletset){
-					//NB ugly delimeter that passes all the way through. urrrghh
-					//but it is just to create a viewable name, so no stress if the name gets messed up
-					if(empty($quizletset) || empty($quizletset->id)){continue;}
-					$qdescription = $quizletset->title;
-					$qdescription  .= ' (' . $quizletset->term_count . ')';
-					$qdescription  .= ' Author:' . $quizletset->created_by;
-					$qdescription  .= ' images:' . ($quizletset->has_images ? 'yes' : 'no') ;
-					$select .= "<option value='" . $quizletset->id . "-"  . preg_replace("/[^A-Za-z0-9]/", "_", $quizletset->title ).  "'>" . $qdescription . "</option>";
-				}
-				$select .= "</select>";
-				*/
+		$searchresult = $qiz->do_search($param_searchtext,$param_searchtype);
+	
+		if($searchresult['success']){
+			if(is_array($searchresult['data'])){
+				$setdata = $searchresult['data'];	
 			}else{
-				//complain that we got no sets here
-				echo "NO SETS!!!";
+				$setdata = $searchresult['data']->sets;
 			}
+			$select_qexport = $qiz->fetch_set_selectlist($setdata,'quizletset_qexport',true);
+			$select_ddrop = $qiz->fetch_set_selectlist($setdata,'quizletset_ddrop',true);
+			
+		}else{
+			//complain that we got no sets here
+			echo "NO SETS!!!";
+		}
 	}
 	
 
@@ -163,7 +127,8 @@ $strexportentries = get_string('exportentriestoxml', 'block_quizletquiz');
 
 echo $OUTPUT->heading($strexportentries);
 echo $OUTPUT->box_start('generalbox');
-echo $searchform;
+//echo $searchform;
+$search_form->display();
 echo $OUTPUT->box_end();
 echo $OUTPUT->box_start('generalbox');
 ?>
