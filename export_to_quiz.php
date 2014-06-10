@@ -25,6 +25,8 @@ $data = $search_form->get_data();
 //make double sure we have the course id in id
 if(empty($data->courseid)){
 	$courseid = optional_param('courseid',$COURSE->id, PARAM_INT);
+}else{
+	$courseid = $data->courseid;
 }
 
 //prepare rest of page and data
@@ -122,26 +124,23 @@ global $OUTPUT;
 
 $strexportfile = get_string("exportfile", "block_quizletquiz");
 $strexportdragdrop = get_string("exportdragdrop", "block_quizletquiz");
-$strexportentries = get_string('exportentriestoxml', 'block_quizletquiz');
+$strexportentries = get_string('exporttofileheader', 'block_quizletquiz');
 
-
-echo $OUTPUT->heading($strexportentries);
+echo $OUTPUT->heading(get_string('exporttofileheader', 'block_quizletquiz'));
+echo get_string('exporttofile', 'block_quizletquiz');
 echo $OUTPUT->box_start('generalbox');
 //echo $searchform;
 $search_form->display();
 echo $OUTPUT->box_end();
+echo "<hr />";
+echo $OUTPUT->heading(get_string('exporttoquestionsheader', 'block_quizletquiz'));
 echo $OUTPUT->box_start('generalbox');
+echo get_string('exporttoquestions', 'block_quizletquiz');
 ?>
     <form action="exportfile_to_quiz.php" method="post">
-    <table border="0" cellpadding="6" cellspacing="6" width="100%">
-    <tr><td align="center">
-        <input type="submit" value="<?php p($strexportfile)?>" />
-    </td></tr></table>
-    <div>
-    </div>
-
-        <div>
-    <input type="hidden" name="id" value="<?php p($cm->id)?>" />
+    
+     <div>
+    <input type="hidden" name="courseid" value="<?php p($courseid) ?>" />
     <input type="hidden" name="exporttype" value="quiz" />
     
     <?php
@@ -155,22 +154,22 @@ echo $OUTPUT->box_start('generalbox');
     <?php
     echo get_string('availablesets', 'block_quizletquiz') . '<br />'  . $select_qexport;
     ?>
-
+<table border="0" cellpadding="6" cellspacing="6" width="100%">
+    <tr><td align="center">
+        <input type="submit" value="<?php p($strexportfile)?>" />
+    </td></tr></table>
     </form>
  <?php
     echo $OUTPUT->box_end();
-   echo $OUTPUT->box_start('generalbox');
-?>
+	echo "<hr />";
+	echo $OUTPUT->heading(get_string('exporttoddropheader', 'block_quizletquiz'));
+	echo $OUTPUT->box_start('generalbox');
+	echo get_string('exporttoddrop', 'block_quizletquiz');
+?> 
    <form action="exportfile_to_quiz.php" method="post">
-    <table border="0" cellpadding="6" cellspacing="6" width="100%">
-    <tr><td align="center">
-        <input type="submit" value="<?php p($strexportdragdrop)?>" />
-    </td></tr></table>
-    <div>
-    </div>
-
-        <div>
-    <input type="hidden" name="id" value="<?php p($cm->id)?>" />
+ 
+     <div>
+    <input type="hidden" name="courseid" value="<?php p($courseid) ?>" />
     <input type="hidden" name="exporttype" value="dragdrop" />
 <?php
    //what kind of quizlet activity are we going to display
@@ -187,8 +186,14 @@ echo $OUTPUT->box_start('generalbox');
 	
 ?>
     </div>
-    </form>
+       <table border="0" cellpadding="6" cellspacing="6" width="100%">
+    <tr><td align="center">
+        <input type="submit" value="<?php p($strexportdragdrop)?>" />
+    </td></tr></table>
+ 
+	</form>
 <?php
     echo $OUTPUT->box_end();
+	echo "<hr />";
 }
 ?>
