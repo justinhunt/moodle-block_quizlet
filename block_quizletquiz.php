@@ -37,10 +37,14 @@ class block_quizletquiz extends block_base {
        // if(($this->content == null)){
             
             $this->content = new stdClass;
-            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id));
-            $this->content->text = "<a href='" . $url->out(false). "'>quizleting</a>";
+            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'qq'));
+            $this->content->text = html_writer::link($url,get_string('qq_exportlink','block_quizletquiz')); //"<a href='" . $url->out(false). "'>quizleting</a>";
+            
+            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd'));
+            $this->content->text .= html_writer::link($url,get_string('dd_exportlink','block_quizletquiz'));            
+            
             $this->content->footer = '';
-  			return $this->content;
+            return $this->content;
        // }
         
         

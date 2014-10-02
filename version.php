@@ -15,4 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$plugin->version = 2014060201;
+
+defined('MOODLE_INTERNAL') || die();
+
+$module->version   = 2014092901;               // If version == 0 then module will not be installed
+$module->requires  = 2010031900;      // Requires this Moodle version
+$module->cron      = 0;               // Period for cron to check this module (secs)
+$module->component = 'block_quizletquiz'; // To check on upgrade, that module sits in correct place

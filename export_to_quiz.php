@@ -1,10 +1,38 @@
 <?php
-/// original file: mod/glossary/export.php
-/// modified by JR 17 JAN 2011
-	global  $USER, $COURSE;	
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+// This file is part of Moodle - http://moodle.org/                      //
+// Moodle - Modular Object-Oriented Dynamic Learning Environment         //
+//                                                                       //
+// Moodle is free software: you can redistribute it and/or modify        //
+// it under the terms of the GNU General Public License as published by  //
+// the Free Software Foundation, either version 3 of the License, or     //
+// (at your option) any later version.                                   //
+//                                                                       //
+// Moodle is distributed in the hope that it will be useful,             //
+// but WITHOUT ANY WARRANTY; without even the implied warranty of        //
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         //
+// GNU General Public License for more details.                          //
+//                                                                       //
+// You should have received a copy of the GNU General Public License     //
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.       //
+//                                                                       //
+///////////////////////////////////////////////////////////////////////////
+
+/**
+ * Export to Quiz for Quizlet Quiz Block
+ *
+ * @package    block_quizletquiz
+ * @author     Justin Hunt <poodllsupport@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @copyright  (C) 1999 onwards Justin Hunt  http://poodll.com
+ */
+global  $USER, $COURSE;	
 
 require_once("../../config.php");
 require_once($CFG->dirroot.'/mod/quizletimport/quizlet.php');
+require_once(dirname(__FILE__).'/forms.php');
+require_once(dirname(__FILE__).'/locallib.php');
 
 require_login();
 if (isguestuser()) {
@@ -12,30 +40,39 @@ if (isguestuser()) {
 }
 
 //Set up page
-$context = context_user::instance($USER->id);
+//$context = context_user::instance($USER->id);
 //require_capability('moodle/user:viewalldetails', $context);
-$PAGE->set_context($context);
+//$PAGE->set_context($context);
+//
+//get any params we might need
+$oauth2code = optional_param('oauth2code', 0, PARAM_RAW);
+$action = optional_param('action','', PARAM_TEXT);
+$exporttype = optional_param('exporttype','qq', PARAM_TEXT);
+$courseid = optional_param('courseid',0, PARAM_INT);
+$selectedsets =  optional_param_array('selectedsets',array(), PARAM_ALPHANUMEXT); 
 
-
-//get quizlet search form
-$search_form = new quizlet_search_form();
-$data = $search_form->get_data();
-
-
-//make double sure we have the course id in id
-if(empty($data->courseid)){
-	$courseid = optional_param('courseid',$COURSE->id, PARAM_INT);
+if( $courseid==0){
+    $course = get_course();
+    $courseid = $course->id;
 }else{
-	$courseid = $data->courseid;
+     $course = get_course($courseid);
 }
 
-//prepare rest of page and data
-$oauth2code = optional_param('oauth2code', 0, PARAM_RAW);
+$context = context_course::instance($courseid);
+$PAGE->set_course($course);
+
 $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$courseid));
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('standard');
+$PAGE->set_heading($SITE->fullname);
+$PAGE->set_pagelayout('course');
+
+//get quizlet search form
+$search_form = new block_quizlet_search_form(null,array('exporttype'=>$exporttype));
+$search_data = $search_form->get_data();
 
 
+//get our renderer
+$renderer = $PAGE->get_renderer('block_quizletquiz');
 
   //Initialize Quizlet and deal with oauth etc
 	//i  - send off to auth screen
@@ -53,147 +90,101 @@ $PAGE->set_pagelayout('standard');
                         $qmessage = $result['error'];
                 }   
      }
-	
-echo $OUTPUT->header();
-
-	if($qmessage){
-		qdisplayerror($qmessage);
-	}elseif(!$qiz->is_authenticated()){
-		$authlink= '<a href="' . $qiz->fetch_auth_url() . '">' . get_string('quizletlogin', 'block_quizletquiz') . '</a>';
-         qdisplayerror($authlink);
-	}else{
-		qdisplayforms($qiz, $courseid, $search_form, $data);
-	}
-
-echo $OUTPUT->footer();
-
-function qdisplayerror($qmessage) {
-     echo $qmessage;
-}//end of func
-
-function qdisplayforms($qiz, $courseid, $search_form, $data){
-
-global $OUTPUT;
-
-	$param_searchtext = '';
-	$param_searchtype = '';
-	if(!empty($data->searchtext)){
-		$param_searchtext = $data->searchtext;
-	}
-	if(!empty($data->searchtype)){
-		$param_searchtype = $data->searchtype;
-	}
-	
-	//if authenticated fill our select box with users sets
-	//otherwise show a login/authorize link
-	$select = "";
-	if($qiz->is_authenticated()){
-		//default is to list our sets
-		$searchresult = $qiz->do_search($param_searchtext,$param_searchtype);
-	
-		if($searchresult['success']){
-			if(is_array($searchresult['data'])){
-				$setdata = $searchresult['data'];	
-			}else{
-				$setdata = $searchresult['data']->sets;
-			}
-			$select_qexport = $qiz->fetch_set_selectlist($setdata,'quizletset_qexport',true);
-			$select_ddrop = $qiz->fetch_set_selectlist($setdata,'quizletset_ddrop',true);
-			
-		}else{
-			//complain that we got no sets here
-			echo "NO SETS!!!";
-		}
-	}
-	
-
-	//create question types
-	$qtypes = array();
-	$qtypes['multichoice_abc'] =get_string('multichoice', 'block_quizletquiz').
-    					' ('. get_string('answernumberingabc', 'qtype_multichoice').')';
-    $qtypes['multichoice_ABCD'] =get_string('multichoice', 'block_quizletquiz').
-    					' ('. get_string('answernumberingABCD', 'qtype_multichoice').')'; 
-	$qtypes['multichoice_123'] =get_string('multichoice', 'block_quizletquiz').
-    					' ('. get_string('answernumbering123', 'qtype_multichoice').')';
-    $qtypes['multichoice_none'] =get_string('multichoice', 'block_quizletquiz').
-    					' ('. get_string('answernumberingnone', 'qtype_multichoice').')';
-    $qtypes['shortanswer_0'] =get_string('shortanswer_0', 'block_quizletquiz');
-	$qtypes['shortanswer_1'] =get_string('shortanswer_1', 'block_quizletquiz');
 
 
-
-$strexportfile = get_string("exportfile", "block_quizletquiz");
-$strexportdragdrop = get_string("exportdragdrop", "block_quizletquiz");
-$strexportentries = get_string('exporttofileheader', 'block_quizletquiz');
-
-echo $OUTPUT->heading(get_string('exporttofileheader', 'block_quizletquiz'));
-echo get_string('exporttofile', 'block_quizletquiz');
-echo $OUTPUT->box_start('generalbox');
-//echo $searchform;
-$search_form->display();
-echo $OUTPUT->box_end();
-echo "<hr />";
-echo $OUTPUT->heading(get_string('exporttoquestionsheader', 'block_quizletquiz'));
-echo $OUTPUT->box_start('generalbox');
-echo get_string('exporttoquestions', 'block_quizletquiz');
-?>
-    <form action="exportfile_to_quiz.php" method="post">
-    
-     <div>
-    <input type="hidden" name="courseid" value="<?php p($courseid) ?>" />
-    <input type="hidden" name="exporttype" value="quiz" />
-    
-    <?php
-    //question types
-    foreach ($qtypes as $qcode=>$qname){
-			echo("<input type='checkbox' name='questiontype[]' value='$qcode'>$qname</input><br />");
-		}
-	?>
-	  
-    </div>
-    <?php
-    echo get_string('availablesets', 'block_quizletquiz') . '<br />'  . $select_qexport;
-    ?>
-<table border="0" cellpadding="6" cellspacing="6" width="100%">
-    <tr><td align="center">
-        <input type="submit" value="<?php p($strexportfile)?>" />
-    </td></tr></table>
-    </form>
- <?php
-    echo $OUTPUT->box_end();
-	echo "<hr />";
-	echo $OUTPUT->heading(get_string('exporttoddropheader', 'block_quizletquiz'));
-	echo $OUTPUT->box_start('generalbox');
-	echo get_string('exporttoddrop', 'block_quizletquiz');
-?> 
-   <form action="exportfile_to_quiz.php" method="post">
- 
-     <div>
-    <input type="hidden" name="courseid" value="<?php p($courseid) ?>" />
-    <input type="hidden" name="exporttype" value="dragdrop" />
-<?php
-   //what kind of quizlet activity are we going to display
-		$activities = array('flashcards' => get_string('acttype_flashcards', 'block_quizletquiz'),
-				'scatter'=>get_string('acttype_scatter', 'block_quizletquiz'),
-				'spacerace'=>get_string('acttype_spacerace', 'block_quizletquiz'),
-				'test'=>get_string('acttype_test', 'block_quizletquiz'),
-				'speller'=>get_string('acttype_speller', 'block_quizletquiz'),
-				'learn'=>get_string('acttype_learn', 'block_quizletquiz'));
-		foreach ($activities as $aid=>$atitle){
-			echo("<input type='checkbox' name='activitytype[]' value='$aid'>$atitle</input><br />");
-		}
-		 echo get_string('availablesets', 'block_quizletquiz') . '<br />' . $select_ddrop;
-	
-?>
-    </div>
-       <table border="0" cellpadding="6" cellspacing="6" width="100%">
-    <tr><td align="center">
-        <input type="submit" value="<?php p($strexportdragdrop)?>" />
-    </td></tr></table>
- 
-	</form>
-<?php
-    echo $OUTPUT->box_end();
-	echo "<hr />";
+//look for problems, and cancel out if there are
+$allok=true;
+if($qmessage){
+        //print header	
+        echo $renderer->header();
+	echo $renderer->display_error($qmessage);
+	$allok =false;
+}elseif(!$qiz->is_authenticated()){
+        //print header	
+        echo $renderer->header();
+	 echo $renderer->display_auth_link($qiz->fetch_auth_url());
+	 $allok =false;
 }
-?>
+
+if(!$allok){
+	echo $renderer->footer();
+	return;
+}
+
+//get information on sets
+$param_searchtext = '';
+$param_searchtype = '';
+$usedata=array();
+if(!empty($search_data->searchtext)){
+	$param_searchtext = $search_data->searchtext;
+}
+if(!empty($search_data->searchtype)){
+	$param_searchtype = $search_data->searchtype;
+}
+$searchresult = $qiz->do_search($param_searchtext,$param_searchtype);
+if($searchresult['success']){
+	if(is_array($searchresult['data'])){
+		$setdata = $searchresult['data'];	
+	}else{
+		$setdata = $searchresult['data']->sets;
+	}
+	$usedata = $qiz->fetch_set_as_array($setdata);
+}
+
+
+
+//deal with question export form
+$qform = new block_quizletquiz_export_form(null,array('exporttype'=>$exporttype,'qsets'=>$usedata));
+if($action=='qq_dataexport' && !$qform->is_cancelled()){
+    $qform_data = $qform->get_data();
+    $bqh = new block_quizletquiz_helper();
+
+    switch($exporttype){
+        case 'qq':
+                    $questiontypes = array();
+                    if($qform_data->multichoice !== BLOCK_QUIZLETQUIZ_NO){
+                        $questiontypes[] = $qform_data->multichoice;
+                    }
+                     if($qform_data->shortanswer !== BLOCK_QUIZLETQUIZ_NO){
+                        $questiontypes[] = $qform_data->shortanswer;
+                    }
+                   $bqh->export_qqfile($selectedsets,$questiontypes);
+                   //the selectesets won't come through in form data, for validation reasons I think
+                   // $bqh->export_qqfile($qform_data->selectedsets,$qform_data->multichoice,$qform_data->shortanswer);
+                    break;
+        case 'dd':
+                    $activitytypes = array(); 
+                    if($qform_data->flashcards){$activitytypes[]='flashcards';}
+                    if($qform_data->scatter){$activitytypes[]='scatter';}
+                    if($qform_data->speller){$activitytypes[]='speller';}
+                    if($qform_data->test){$activitytypes[]='test';}
+                    if($qform_data->learn){$activitytypes[]='learn';}
+                    if($qform_data->spacerace){$activitytypes[]='spacerace';}
+                    $bqh->export_ddfile($selectedsets,$activitytypes);
+                   //the selectesets won't come through in form data, for validation reasons I think
+                    //$bqh->export_ddfile($qform_data->selectedsets,$qform_data->activitytype);
+                    break;
+        
+    }
+    return;
+}else{
+    //print header	
+    echo $renderer->header();
+    $qform_data = new stdClass();
+    $qform_data->courseid = $courseid;
+    $qform_data->exporttype = $exporttype;
+    $qform->set_data($qform_data);
+}
+ 
+
+//echo forms
+$renderer->echo_quizlet_search_form($search_form);
+$renderer->echo_question_export_form($qform, $exporttype);
+//$renderer->echo_ddrop_export_form($ddform);
+
+//display preview iframe
+echo $renderer->display_preview_iframe(BLOCK_QUIZLETQUIZ_IFRAME_NAME);
+
+//echo footer
+echo $renderer->footer();
+

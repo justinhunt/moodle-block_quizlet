@@ -1,125 +1,100 @@
-<?php   // $Id: exportfile.php,v 1.8 2007/08/17 12:49:31 skodak Exp $
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-	global $SESSION, $DB;	
+/**
+ * Quizlet Quiz
+ *
+ * @package    block_quizletquiz
+ * @author     Justin Hunt <poodllsupport@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @copyright  (C) 2014 onwards Justin Hunt
+ *
+ *
+ */
+
+class block_quizletquiz_helper {
+
+	private $exporttype;
 	
-	require_once("../../config.php");
-	require_once($CFG->dirroot.'/mod/quizletimport/quizlet.php');
-    require_once("../../lib/filelib.php");
-
-    $courseid = required_param('courseid', PARAM_INT);      // Course Module ID
-    $quizletsets = optional_param_array('selectedset',array(), PARAM_ALPHANUMEXT);
-    $exporttype = optional_param('exporttype',0, PARAM_ALPHANUMEXT);
-    $questiontypes =  optional_param_array('questiontype',array(), PARAM_ALPHANUMEXT);  
-    $activitytypes =  optional_param_array('activitytype',array(), PARAM_ALPHANUMEXT); 
-
-/*
-    if (! $course = $DB->get_record("course", array('id' => $courseid))) {
-        error("Course is misconfigured");
-    }
-*/
-    require_login();
-    
-	//Set up page
-	$context = context_user::instance($USER->id);
-
-
-   // require_capability('block/quizletquiz:export', $context);
-	/*
-
-    $filename = clean_filename(strip_tags(format_string($glossary->name,true)).'.xml');
-    $giftcategoryname = $glossary->name;
+	/**
+     * constructor. make sure we have the right course
+     * @param integer courseid id
 	*/
-	/*
-	echo  'QUIZLETSETS<br />';
-	 foreach($quizletsets as $set){
-		echo $set . '<br />';
-	 }
-	 
-	 echo  'ACTIVITYTYPES<br />';
-	  foreach($activitytypes as $activity){
-		echo $activity . '<br />';
-	 }
-	 
-	 echo  'QUESTIONTYPES<br />';
-	 foreach($questiontypes as $qtype){
-		echo $qtype . '<br />';
-	 }
-	
-	return;
-	*/
-    
-	
-	//if drag and drop export, make file
-	if($exporttype=='dragdrop'){
-		$filename = "quizletset_dragdrop.txt";
-		$content="";
-		foreach($quizletsets as $qset){
-			$qset_params = explode("-", $qset);
-    		$qsetid = $qset_params[0];
-    		$qsetname = $qset_params[1];
-    		
-			 foreach($activitytypes as $activity){
-				$content.="name=$qsetname,activitytype=$activity,quizletset=$qsetid,quizletsettitle=$qsetname,mintime=0,showcountdown=0,showcompletion=0\n\n";
-			}
-		}
-		send_file($content, $filename, 0, 0, true, true); 
-		return;
-	}
-	
-	
-	//Initialize Quizlet
-	//assumption here is that we authenticated back on the mod_form 
+	function block_quizletquiz_helper($exporttype=false) {
+            $this->exporttype=$exporttype;
+        }
+        
+       
+    //if question import export, make file
+    function export_qqfile($quizletsets,$questiontypes){
+        //Initialize Quizlet
+	//assumption here is that we authenticated back on the previous page
 	 $args = array( 'api_scope' => 'read');
 	$qiz  = new quizlet($args);
 	//if authenticated we can start fetching data
 	$select = "";
 	if($qiz->is_authenticated()){
-		$qset_ids = array();
-		foreach($quizletsets as $qset){
-			$qset_params = explode("-", $qset);
-    		$qset_ids[] = $qset_params[0];
-		}
+            $qset_ids = array();
+            foreach($quizletsets as $qset){
+                    $qset_params = explode("-", $qset);
+                $qset_ids[] = $qset_params[0];
+            }
 		
 
-		$endpoint = "sets";
-		$qset_ids_string =  implode(",", $qset_ids);
-		$params=array();
-		//sample two sets
-		//$qset_ids_string = "415,13381475";
-		//animals
-		//$qset_ids_string = "10622858";
-		$params['set_ids']=$qset_ids_string;
-		
-		/*
-		$params=array();
-		$params['term']='silla';
-		$params['q']='spanish';
-		$endpoint = '/search/sets';
-		*/
-		$qiz_return = $qiz->request($endpoint,$params);
-		
-		/*
-		if($qiz_return['success']){
-			foreach ($qiz_return['data'] as $quizletdata){
-				print_r($quizletdata);
-			}
-		}else{
-			print_r($qiz_return);
-			echo "<br/> idstring: " . $qset_ids_string;
-		}
-		*/
-		if(!$qiz_return['success']){
-			print_r($qiz_return);
-			echo "<br/> idstring: " . $qset_ids_string;
-			return;
-		}
+            $endpoint = "sets";
+            $qset_ids_string =  implode(",", $qset_ids);
+            $params=array();
+            //sample two sets
+            //$qset_ids_string = "415,13381475";
+            //animals
+            //$qset_ids_string = "10622858";
+            $params['set_ids']=$qset_ids_string;
+
+            /*
+            $params=array();
+            $params['term']='silla';
+            $params['q']='spanish';
+            $endpoint = '/search/sets';
+            */
+            $qiz_return = $qiz->request($endpoint,$params);
+
+            /*
+            if($qiz_return['success']){
+                    foreach ($qiz_return['data'] as $quizletdata){
+                            print_r($quizletdata);
+                    }
+            }else{
+                    print_r($qiz_return);
+                    echo "<br/> idstring: " . $qset_ids_string;
+            }
+            */
+            if(!$qiz_return['success']){
+                    print_r($qiz_return);
+                    echo "<br/> idstring: " . $qset_ids_string;
+                    return;
+            }
 			
 	}else{
 		echo "uh oh: not authenticated.";
 		return;
 	}
 	
-	
+      //this whole question type parsing is still rough
+      //need to clean up.
+     
     // build XML file - based on moodle/question/xml/format.php
     // add opening tag
     $expout = "";
@@ -134,7 +109,7 @@
 					$questiontype = $questiontype_params[0];
 			
 					//print out category
-					$expout .= print_category($quizletdata, $qtype);
+					$expout .= $this->print_category($quizletdata, $qtype);
 			
 					if ($questiontype == 'multichoice') {
 						$answerstyle = $questiontype_params[1]; 
@@ -147,7 +122,7 @@
 					}
 					foreach ($entries as $entry) {
 						$counter++;
-						$expout .= data_to_question($entry,$terms,$questiontype, $answerstyle,$counter);
+						$expout .= $this->data_to_question($entry,$terms,$questiontype, $answerstyle,$counter);
 					}
 				}//end of for each qtype
 			}//end of if entries
@@ -161,20 +136,38 @@
                        "</quiz>";
 
         // make the xml look nice
-		$content = xmltidy( $content );	
-		//return the content
-		send_file($content, $filename, 0, 0, true, true);  
-		return;
-         
-            
+        $content = $this->xmltidy( $content );	
+        //return the content
+        send_file($content, $filename, 0, 0, true, true);  
+        return;
+    }
+        
+   //if drag and drop export, make file
+    function export_ddfile($quizletsets,$activitytypes){
+           $filename = "quizletset_dragdrop.txt";
+           $content="";
+           foreach($quizletsets as $qset){
+                   $qset_params = explode("-", $qset);
+           $qsetid = $qset_params[0];
+           $qsetname = $qset_params[1];
+
+                    foreach($activitytypes as $activity){
+                           $content.="name=$qsetname,activitytype=$activity,quizletset=$qsetid,quizletsettitle=$qsetname,mintime=0,showcountdown=0,showcompletion=0\n\n";
+                   }
+           }
+           send_file($content, $filename, 0, 0, true, true); 
+           return;
+   }
+    
+        
     function clean_name($originalname){
     	return preg_replace("/[^A-Za-z0-9]/", "_", $originalname);
     }        
     
     function print_category($quizletdata, $questiontype){
 		   $ret = "";
-		   $cleanname = clean_name($quizletdata->title);
-		   $categorypath = writetext( 'quizletquestions/' . $cleanname . '/' . $questiontype );
+		   $cleanname = $this->clean_name($quizletdata->title);
+		   $categorypath = $this->writetext( 'quizletquestions/' . $cleanname . '/' . $questiontype );
            $ret  .= "  <question type=\"category\">\n";
            $ret  .= "    <category>\n";
            $ret  .= "        $categorypath\n";
@@ -191,15 +184,15 @@
             $currentimage = $entry->image;
             
         	$ret .= "\n\n<!-- question: $counter  -->\n";            
-    		$name_text = writetext( $currentterm );
+    		$name_text = $this->writetext( $currentterm );
             $qtformat = "html";
             $ret .= "  <question type=\"$questiontype\">\n";
             $ret .= "    <name>$name_text</name>\n";
             $ret .= "    <questiontext format=\"$qtformat\">\n";
             if($entry->image){
-            	 $ret .= writeimage( $currentimage);
+            	 $ret .= $this->writeimage( $currentimage);
             }else{
-            	$ret .= writetext( $definition );
+            	$ret .= $this->writetext( $definition );
             }
            
             $ret .= "    </questiontext>\n";
@@ -234,7 +227,7 @@
 						if ($i === 0) {
 							$percent = 100;
 							$ret .= "      <answer fraction=\"$percent\">\n";
-							$ret .= writetext( $currentterm,3,false )."\n";
+							$ret .= $this->writetext( $currentterm,3,false )."\n";
 							$ret .= "      <feedback>\n";
 							$ret .= "      <text>\n";
 							$ret .= "      </text>\n";
@@ -244,7 +237,7 @@
 							$percent = 0;
 							$distracter = $allterms[$rand_keys[$i-1]];
 							$ret .= "      <answer fraction=\"$percent\">\n";
-							$ret .= writetext( $distracter,3,false )."\n";
+							$ret .= $this->writetext( $distracter,3,false )."\n";
 							$ret .= "      <feedback>\n";
 							$ret .= "      <text>\n";
 							$ret .= "      </text>\n";
@@ -256,7 +249,7 @@
 					$ret .= "    <usecase>$answerstyle</usecase>\n ";
 					$percent = 100;
 					$ret .= "    <answer fraction=\"$percent\">\n";
-					$ret .= writetext( $currentterm,3,false );
+					$ret .= $this->writetext( $currentterm,3,false );
 					$ret .= "    </answer>\n";
 				}//end of if
             // close the question tag
@@ -294,7 +287,7 @@
         $filename = basename($image->url);
         $width = $image->width;
         $height = $image->height;
-        $imagestring = fetchimage($image->url);
+        $imagestring = $this->fetchimage($image->url);
         $string = '';
 		$string .= '<text><![CDATA[<p><img src="@@PLUGINFILE@@/' . $filename . '" alt="' . $filename . '" width="' . $width . '"  height="' . $height . '" /></p>]]></text>';
 		$string .= '<file name="' . $filename . '" path="/" encoding="' . $encoding . '">';
@@ -334,4 +327,5 @@
             return $content;
         }
     }	
-?>
+
+}
