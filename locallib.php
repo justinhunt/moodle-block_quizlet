@@ -28,7 +28,7 @@
 class block_quizletquiz_helper {
 
 	private $exporttype;
-	
+	private $matchtermscount = 6;
 	/**
      * constructor. make sure we have the right course
      * @param integer courseid id
@@ -102,30 +102,60 @@ class block_quizletquiz_helper {
 	$filename ="quizletimportdata.xml";
 	//nesting on quizlet set, then question type, then each element in quizlet set as a question
 	foreach	($qiz_return['data'] as $quizletdata){
-		  if ( $entries = $quizletdata->terms) {
-				//for each passed in question type
-				foreach ($questiontypes as $qtype){
-					$questiontype_params = explode("_", $qtype);
-					$questiontype = $questiontype_params[0];
-			
-					//print out category
-					$expout .= $this->print_category($quizletdata, $qtype);
-			
-					if ($questiontype == 'multichoice') {
-						$answerstyle = $questiontype_params[1]; 
-						$terms = array();    
-						foreach ($entries as $entry) {
-							$terms[] = $entry->term;          
-						}
-					} else {
-						$answerstyle = $questiontype_params[1];
-					}
-					foreach ($entries as $entry) {
-						$counter++;
-						$expout .= $this->data_to_question($entry,$terms,$questiontype, $answerstyle,$counter);
-					}
-				}//end of for each qtype
-			}//end of if entries
+            if ( $entries = $quizletdata->terms) {
+                  //for each passed in question type
+                  foreach ($questiontypes as $qtype){
+                          $questiontype_params = explode("_", $qtype);
+                          $questiontype = $questiontype_params[0];
+
+                          //print out category
+                          $expout .= $this->print_category($quizletdata, $qtype);
+                          
+                          //prepare date by question type for processing
+                          $terms = array();  
+                          switch($questiontype){
+                            case 'multichoice':
+                            case 'matching':
+                                    $answerstyle = $questiontype_params[1];   
+                                    foreach ($entries as $entry) {
+                                            $terms[] = $entry->term;          
+                                    }
+                                    break;
+                            case 'shortanswer':
+                                    $answerstyle = $questiontype_params[1];
+                                    break;
+                          }
+                          
+                          //make the body of the export per question
+                        switch ($questiontype){
+                          case 'multichoice':
+                          case 'shortanswer':
+                            foreach ($entries as $entry) {
+                                    $counter++;
+                                    $expout .= $this->data_to_mc_sa_question($entry,$terms,$questiontype, $answerstyle,$counter);
+                            }
+                         
+                          case 'matching':
+                            $entrycount = count($entries);
+                            $lastentries = $entrycount / $this->matchtermscount;
+                            $entriesmd = array_chunk($entries,$this->matchtermscount,true);
+                            $entriesmdcount = count($entriesmd);
+                            //here we pad the last chunk with additional entries if it is too small
+                            if($entriesmdcount>1 && $lastentries > 0){
+                                for($x=0;$x<$lastentries;$x++){
+                                    $entriesmd[$entriesmdcount-1][]=$entriesmd[$entriesmdcount-2][$this->matchtermscount-$x-1];
+                                }
+                            }
+                            //here we pass in chunks of entries to make matching questions
+                            $qsetname = $this->clean_name($quizletdata->title);
+                            foreach ($entriesmd as $entryset){
+                                $expout .= $this->data_to_matching_question($entryset,$questiontype, $qsetname . '_' . $counter, $counter);
+                                $counter++;
+                            }
+                              
+                        }
+                  }//end of for each qtype
+              }//end of if entries
 	}//end of for each quizlet data
     	
     	 // initial string;
@@ -175,8 +205,47 @@ class block_quizletquiz_helper {
            $ret  .= "  </question>\n"; 
 		return $ret;
 	}
+
+   
+   function data_to_matching_question($allentries, $questiontype, $qname, $counter){
 	
-	function data_to_question($entry,$allterms, $questiontype, $answerstyle, $counter){
+            $ret = "";          
+            $ret .= "\n\n<!-- question: $counter  -->\n";            
+            $qtformat = "html";
+            $ret .= "  <question type=\"$questiontype\">\n";
+            $ret .= "    <name>" . $this->writetext($qname,2,true ). "</name>\n";
+            $ret .= "    <questiontext format=\"$qtformat\">\n";
+            $ret .= $this->writetext(get_string('matchingquestiontext','block_quizletquiz'),2,false);
+            $ret .= "    </questiontext>\n";
+            foreach($allentries as $entry){
+                $thedefinition = trusttext_strip($entry->definition);
+                $theterm = trusttext_strip($entry->term);
+                $theimage = $entry->image;
+                
+                switch($questiontype){
+                    case 'matching':
+                         $ret .= "<subquestion format=\"html\">\n ";
+                         if($theimage){
+                            $ret .= $this->writeimage( $theimage)."\n";  
+                         }else{
+                            $ret .= $this->writetext( $thedefinition,3,false )."\n";          
+                         }
+                           $ret .= "    <answer>\n";
+                           $ret .= $this->writetext( $theterm,3,true );
+                           $ret .= "    </answer>\n";
+                            $ret .= "</subquestion>\n";
+                           break;
+                }//end of switch
+            }
+           
+            // close the question tag
+            $ret .= "</question>\n";		
+            return $ret;
+	}//end of function            
+	
+        
+        
+	function data_to_mc_sa_question($entry,$allterms, $questiontype, $answerstyle, $counter){
 	
 		$ret = "";
 		$definition = trusttext_strip($entry->definition);
@@ -197,61 +266,66 @@ class block_quizletquiz_helper {
            
             $ret .= "    </questiontext>\n";
 
-				if ($questiontype == 'multichoice') {
-					$answerscount = 4;
-					$ret .= "    <shuffleanswers>true</shuffleanswers>\n";
-					$ret .= "    <answernumbering>".$answerstyle."</answernumbering>\n";
-					//$terms2 = $terms;
-					//try terms2 simply as allterms
-					foreach ($allterms as $key => $value) {
-					   if ($value == $currentterm) {
-						   unset($allterms[$key]);
-						}//end of if
-					}//end of foreach
-					
-					//make sure we have enough terms in the quizlet set to make the question
-					//if not use fewer answers
-					if(count($allterms)<$answerscount){
-						$answerscount = count($allterms) + 1;
-					}
-					
-					
-					//get a random list of distractor answers
-					//if we only have 1 distratctor, it won't be an array so we make one
-					$rand_keys = array_rand($allterms, $answerscount-1);
-					if(!is_array($rand_keys)){
-						$rand_keys=array($rand_keys);
-					}
-					
-					for ($i=0; $i<$answerscount; $i++) {
-						if ($i === 0) {
-							$percent = 100;
-							$ret .= "      <answer fraction=\"$percent\">\n";
-							$ret .= $this->writetext( $currentterm,3,false )."\n";
-							$ret .= "      <feedback>\n";
-							$ret .= "      <text>\n";
-							$ret .= "      </text>\n";
-							$ret .= "      </feedback>\n";                    
-							$ret .= "    </answer>\n";
-						} else {
-							$percent = 0;
-							$distracter = $allterms[$rand_keys[$i-1]];
-							$ret .= "      <answer fraction=\"$percent\">\n";
-							$ret .= $this->writetext( $distracter,3,false )."\n";
-							$ret .= "      <feedback>\n";
-							$ret .= "      <text>\n";
-							$ret .= "      </text>\n";
-							$ret .= "      </feedback>\n";
-							$ret .= "    </answer>\n";
-						} //end of if $i === 0
-					}//end of for i loop
-				} else { // shortanswer				
-					$ret .= "    <usecase>$answerstyle</usecase>\n ";
-					$percent = 100;
-					$ret .= "    <answer fraction=\"$percent\">\n";
-					$ret .= $this->writetext( $currentterm,3,false );
-					$ret .= "    </answer>\n";
-				}//end of if
+            switch($questiontype){
+                case 'multichoice':
+                    $answerscount = 4;
+                    $ret .= "    <shuffleanswers>true</shuffleanswers>\n";
+                    $ret .= "    <answernumbering>".$answerstyle."</answernumbering>\n";
+                    //$terms2 = $terms;
+                    //try terms2 simply as allterms
+                    foreach ($allterms as $key => $value) {
+                       if ($value == $currentterm) {
+                               unset($allterms[$key]);
+                            }//end of if
+                    }//end of foreach
+
+                    //make sure we have enough terms in the quizlet set to make the question
+                    //if not use fewer answers
+                    if(count($allterms)<$answerscount){
+                            $answerscount = count($allterms) + 1;
+                    }
+
+
+                    //get a random list of distractor answers
+                    //if we only have 1 distratctor, it won't be an array so we make one
+                    $rand_keys = array_rand($allterms, $answerscount-1);
+                    if(!is_array($rand_keys)){
+                            $rand_keys=array($rand_keys);
+                    }
+
+                    for ($i=0; $i<$answerscount; $i++) {
+                            if ($i === 0) {
+                                    $percent = 100;
+                                    $ret .= "      <answer fraction=\"$percent\">\n";
+                                    $ret .= $this->writetext( $currentterm,3,false )."\n";
+                                    $ret .= "      <feedback>\n";
+                                    $ret .= "      <text>\n";
+                                    $ret .= "      </text>\n";
+                                    $ret .= "      </feedback>\n";                    
+                                    $ret .= "    </answer>\n";
+                            } else {
+                                    $percent = 0;
+                                    $distracter = $allterms[$rand_keys[$i-1]];
+                                    $ret .= "      <answer fraction=\"$percent\">\n";
+                                    $ret .= $this->writetext( $distracter,3,false )."\n";
+                                    $ret .= "      <feedback>\n";
+                                    $ret .= "      <text>\n";
+                                    $ret .= "      </text>\n";
+                                    $ret .= "      </feedback>\n";
+                                    $ret .= "    </answer>\n";
+                            } //end of if $i === 0
+                    }//end of for i loop
+                    break;
+            case 'shortanswer':				
+                    $ret .= "    <usecase>$answerstyle</usecase>\n ";
+                    $percent = 100;
+                    $ret .= "    <answer fraction=\"$percent\">\n";
+                    $ret .= $this->writetext( $currentterm,3,false );
+                    $ret .= "    </answer>\n";
+                    break;
+
+            }//end of switch
+           
             // close the question tag
             $ret .= "</question>\n";		
             return $ret;

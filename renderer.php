@@ -44,7 +44,10 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
 		echo $this->output->box_end();
 	}
 
-	function echo_question_export_form($form, $exporttype){
+	function echo_question_export_form($form, $exporttype, $message){
+                if($message){
+                    echo $this->output->heading($message, 3, 'badmessage'); 
+                }
                 if($exporttype === 'qq'){
                    // echo get_string('exporttofile', 'block_quizletquiz');
                     echo $this->output->heading(get_string('exportqqfile', 'block_quizletquiz'), 2, 'main');

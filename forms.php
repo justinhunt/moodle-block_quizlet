@@ -38,6 +38,7 @@ define('BLOCK_QUIZLETQUIZ_MC_123','multichoice_123');
 define('BLOCK_QUIZLETQUIZ_MC_NONE','multichoice_none');
 define('BLOCK_QUIZLETQUIZ_SA_CASE','shortanswer_1');
 define('BLOCK_QUIZLETQUIZ_SA_NOCASE','shortanswer_0');
+define('BLOCK_QUIZLETQUIZ_MATCHING','matching_0');
 
 
 define ('BLOCK_QUIZLETQUIZ_QQ_SELECTSET','block_quizletquiz_qq_selectset');
@@ -166,11 +167,20 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
         $sa_array[] =& $mform->createElement('radio', 'shortanswer', '', get_string('shortanswer_0', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_SA_CASE, $attributes);
         $sa_array[] =& $mform->createElement('radio', 'shortanswer', '', get_string('shortanswer_1', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_SA_NOCASE, $attributes);
         $sa_arraytable = $this->tablify($sa_array,1, 'sa_table',false);
+        
+        //matching question
+        $attributes = array();
+        $matching_array=array();
+        $matching_array[] =& $mform->createElement('radio', 'matching', '', get_string('nomatching','block_quizletquiz'), BLOCK_QUIZLETQUIZ_NO, $attributes);
+        $matching_array[] =& $mform->createElement('radio', 'matching', '', get_string('yesmatching', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_MATCHING, $attributes);
+        $matching_arraytable = $this->tablify($matching_array,1, 'matching_table',false);
+
        
         if($this->_customdata['exporttype']=='qq'){
             $mform->addElement('static','qq_qchoiceexplanation','',get_string('qchoiceinstructions','block_quizletquiz'));
             $mform->addGroup($sa_arraytable, 'shortanswer_group',get_string('shortanswer','block_quizletquiz'), array(' '), false);      
             $mform->addGroup($mc_arraytable, 'multichoice_group',get_string('multichoice','block_quizletquiz'), array(' '), false);
+            $mform->addGroup($matching_arraytable, 'matching_group',get_string('matching','block_quizletquiz'), array(' '), false);
         }else{
                //add a little explanation
             $mform->addElement('static','qq_actchoiceexplanation','',get_string('actchoiceinstructions','block_quizletquiz'));

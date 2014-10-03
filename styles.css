@@ -29,3 +29,7 @@ th.quizletquiz_form_cell{
 input[type="button"].block_quizletquiz_previewbutton {
    float: left;
 }
+
+.badmessage {
+    color: red;
+}

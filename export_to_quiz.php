@@ -43,7 +43,7 @@ if (isguestuser()) {
 //$context = context_user::instance($USER->id);
 //require_capability('moodle/user:viewalldetails', $context);
 //$PAGE->set_context($context);
-//
+
 //get any params we might need
 $oauth2code = optional_param('oauth2code', 0, PARAM_RAW);
 $action = optional_param('action','', PARAM_TEXT);
@@ -52,7 +52,7 @@ $courseid = optional_param('courseid',0, PARAM_INT);
 $selectedsets =  optional_param_array('selectedsets',array(), PARAM_ALPHANUMEXT); 
 
 if( $courseid==0){
-    $course = get_course();
+    $course = get_course($COURSE->id);
     $courseid = $course->id;
 }else{
      $course = get_course($courseid);
@@ -134,52 +134,78 @@ if($searchresult['success']){
 
 
 //deal with question export form
+ $badmessage =false;
 $qform = new block_quizletquiz_export_form(null,array('exporttype'=>$exporttype,'qsets'=>$usedata));
+
 if($action=='qq_dataexport' && !$qform->is_cancelled()){
     $qform_data = $qform->get_data();
     $bqh = new block_quizletquiz_helper();
+    
+    //if we have not selected set, refuse to proceed
+    if(count($selectedsets)==0){
+        $badmessage = get_string('noselectedset', 'block_quizletquiz');
+    }else{
+        switch($exporttype){
+            case 'qq':
+                $questiontypes = array();
+                if($qform_data->multichoice !== BLOCK_QUIZLETQUIZ_NO){
+                    $questiontypes[] = $qform_data->multichoice;
+                }
+                 if($qform_data->shortanswer !== BLOCK_QUIZLETQUIZ_NO){
+                    $questiontypes[] = $qform_data->shortanswer;
+                }
+                if($qform_data->matching !== BLOCK_QUIZLETQUIZ_NO){
+                    $questiontypes[] = $qform_data->matching;
+                }
+                if(count($questiontypes)>0){
+                    $bqh->export_qqfile($selectedsets,$questiontypes);
+                    //the selectesets won't come through in form data, for validation reasons I think
+                    // $bqh->export_qqfile($qform_data->selectedsets,$qform_data->multichoice,$qform_data->shortanswer)
+                }else{
+                    $badmessage = get_string('noquestiontype', 'block_quizletquiz');
+                }
 
-    switch($exporttype){
-        case 'qq':
-                    $questiontypes = array();
-                    if($qform_data->multichoice !== BLOCK_QUIZLETQUIZ_NO){
-                        $questiontypes[] = $qform_data->multichoice;
-                    }
-                     if($qform_data->shortanswer !== BLOCK_QUIZLETQUIZ_NO){
-                        $questiontypes[] = $qform_data->shortanswer;
-                    }
-                   $bqh->export_qqfile($selectedsets,$questiontypes);
-                   //the selectesets won't come through in form data, for validation reasons I think
-                   // $bqh->export_qqfile($qform_data->selectedsets,$qform_data->multichoice,$qform_data->shortanswer);
-                    break;
-        case 'dd':
-                    $activitytypes = array(); 
-                    if($qform_data->flashcards){$activitytypes[]='flashcards';}
-                    if($qform_data->scatter){$activitytypes[]='scatter';}
-                    if($qform_data->speller){$activitytypes[]='speller';}
-                    if($qform_data->test){$activitytypes[]='test';}
-                    if($qform_data->learn){$activitytypes[]='learn';}
-                    if($qform_data->spacerace){$activitytypes[]='spacerace';}
+                break;
+            case 'dd':
+                $activitytypes = array(); 
+                if($qform_data->flashcards){$activitytypes[]='flashcards';}
+                if($qform_data->scatter){$activitytypes[]='scatter';}
+                if($qform_data->speller){$activitytypes[]='speller';}
+                if($qform_data->test){$activitytypes[]='test';}
+                if($qform_data->learn){$activitytypes[]='learn';}
+                if($qform_data->spacerace){$activitytypes[]='spacerace';}
+                if(count($activitytypes)>0){
                     $bqh->export_ddfile($selectedsets,$activitytypes);
                    //the selectesets won't come through in form data, for validation reasons I think
                     //$bqh->export_ddfile($qform_data->selectedsets,$qform_data->activitytype);
-                    break;
-        
+                }else{
+                    $badmessage = get_string('noactivitytype', 'block_quizletquiz');
+                }
+                break;
+
+        }//end of switch
+    }//end of if no selected set
+    
+    //if we have no error message, probably it went through ok
+    //if so just exit
+    if(!$badmessage){
+        return;
     }
-    return;
-}else{
-    //print header	
-    echo $renderer->header();
-    $qform_data = new stdClass();
-    $qform_data->courseid = $courseid;
-    $qform_data->exporttype = $exporttype;
-    $qform->set_data($qform_data);
 }
- 
+    
+//print header	
+echo $renderer->header();
+$qform_data = new stdClass();
+$qform_data->courseid = $courseid;
+$qform_data->exporttype = $exporttype;
+$qform_data->multichoice = BLOCK_QUIZLETQUIZ_NO;
+$qform_data->shortanswer = BLOCK_QUIZLETQUIZ_NO;
+$qform_data->matching = BLOCK_QUIZLETQUIZ_NO;
+$qform->set_data($qform_data);
 
 //echo forms
 $renderer->echo_quizlet_search_form($search_form);
-$renderer->echo_question_export_form($qform, $exporttype);
+$renderer->echo_question_export_form($qform, $exporttype, $badmessage);
 //$renderer->echo_ddrop_export_form($ddform);
 
 //display preview iframe
