@@ -30,9 +30,10 @@
 global  $USER, $COURSE;	
 
 require_once("../../config.php");
-require_once($CFG->dirroot.'/mod/quizletimport/quizlet.php');
 require_once(dirname(__FILE__).'/forms.php');
+require_once(dirname(__FILE__).'/quizlet.php');
 require_once(dirname(__FILE__).'/locallib.php');
+require_once($CFG->libdir . '/questionlib.php');
 
 require_login();
 if (isguestuser()) {
@@ -81,7 +82,7 @@ $renderer = $PAGE->get_renderer('block_quizletquiz');
 	 $args = array(
 		'api_scope' => 'read'
 	);
-	$qiz  = new quizlet($args);
+	$qiz  = new quizlet_qq($args);
 	
 	$qmessage = false;
 	if(!$qiz->is_authenticated() && $oauth2code){
@@ -147,6 +148,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
     }else{
         switch($exporttype){
             case 'qq':
+            case 'qq_direct':
                 $questiontypes = array();
                 if($qform_data->multichoice !== BLOCK_QUIZLETQUIZ_NO){
                     $questiontypes[] = $qform_data->multichoice;
@@ -158,7 +160,27 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                     $questiontypes[] = $qform_data->matching;
                 }
                 if(count($questiontypes)>0){
-                    $bqh->export_qqfile($selectedsets,$questiontypes);
+                    //if we have questions, export to file
+                    if($exporttype == 'qq'){
+                        $bqh->export_qqfile($selectedsets,$questiontypes);
+                    
+                    //or we export to questionbank    
+                    }else{
+
+                        echo $renderer->header();
+                        //get default category for this course
+                        $category = question_get_default_category($context->id);
+                        $success = $bqh->import_to_qbank($selectedsets,$questiontypes, $category, $url);
+                       /*  $params = $pageurl->params() + array(
+                            'category' => $qformat->category->id . ',' . $qformat->category->contextid);
+                            */
+                       
+                        
+                         $params =  array('courseid' => $courseid);
+                        echo $OUTPUT->continue_button(new moodle_url('/question/edit.php', $params));
+                        echo $renderer->footer();
+                        exit;
+                    }
                     //the selectesets won't come through in form data, for validation reasons I think
                     // $bqh->export_qqfile($qform_data->selectedsets,$qform_data->multichoice,$qform_data->shortanswer)
                 }else{
@@ -167,6 +189,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
 
                 break;
             case 'dd':
+            case 'dd_direct':    
                 $activitytypes = array(); 
                 if($qform_data->flashcards){$activitytypes[]='flashcards';}
                 if($qform_data->scatter){$activitytypes[]='scatter';}
@@ -175,7 +198,11 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                 if($qform_data->learn){$activitytypes[]='learn';}
                 if($qform_data->spacerace){$activitytypes[]='spacerace';}
                 if(count($activitytypes)>0){
-                    $bqh->export_ddfile($selectedsets,$activitytypes);
+                    if($exporttype=='dd'){
+                        $bqh->export_ddfile($selectedsets,$activitytypes);
+                    }else{
+                        $bqh->export_ddfile($selectedsets,$activitytypes);
+                    }
                    //the selectesets won't come through in form data, for validation reasons I think
                     //$bqh->export_ddfile($qform_data->selectedsets,$qform_data->activitytype);
                 }else{
@@ -213,4 +240,3 @@ echo $renderer->display_preview_iframe(BLOCK_QUIZLETQUIZ_IFRAME_NAME);
 
 //echo footer
 echo $renderer->footer();
-

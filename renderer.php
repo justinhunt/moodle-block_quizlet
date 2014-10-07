@@ -38,7 +38,7 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
 	}
 
         function echo_quizlet_search_form($form){
-		echo $this->output->heading(get_string('selectset','quizletimport'), 3, 'main');
+		echo $this->output->heading(get_string('selectset','block_quizletquiz'), 3, 'main');
 		echo $this->output->box_start('generalbox');
 		$form->display();
 		echo $this->output->box_end();
@@ -48,12 +48,27 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
                 if($message){
                     echo $this->output->heading($message, 3, 'badmessage'); 
                 }
-                if($exporttype === 'qq'){
-                   // echo get_string('exporttofile', 'block_quizletquiz');
-                    echo $this->output->heading(get_string('exportqqfile', 'block_quizletquiz'), 2, 'main');
-                }else{
-                   // echo get_string('exporttoddrop', 'block_quizletquiz');
-                    echo $this->output->heading(get_string('exportddfile', 'block_quizletquiz'), 2, 'main');
+                switch($exporttype){
+                    case 'qq':
+                        // echo get_string('exporttofile', 'block_quizletquiz');
+                         echo $this->output->heading(get_string('exportqqfile', 'block_quizletquiz'), 2, 'main');
+                        break;
+                    
+                    case 'qq_direct':
+                        // echo get_string('exporttofile', 'block_quizletquiz');
+                        echo $this->output->heading(get_string('exportqqdirect', 'block_quizletquiz'), 2, 'main');
+                        break;
+
+                    case 'dd':
+                        // echo get_string('exporttoddrop', 'block_quizletquiz');
+                         echo $this->output->heading(get_string('exportddfile', 'block_quizletquiz'), 2, 'main');
+                         break;
+                    
+                    case 'dd_direct':
+                        // echo get_string('exporttoddrop', 'block_quizletquiz');
+                        echo $this->output->heading(get_string('exportdddirect', 'block_quizletquiz'), 2, 'main');
+                        break;
+                        
                 }
                 //echo $this->output->heading(get_string('exporttofileheader', 'block_quizletquiz'), 3, 'main');
                 echo $this->output->box_start('generalbox');

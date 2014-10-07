@@ -38,10 +38,17 @@ class block_quizletquiz extends block_base {
             
             $this->content = new stdClass;
             $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'qq'));
-            $this->content->text = html_writer::link($url,get_string('qq_exportlink','block_quizletquiz')); //"<a href='" . $url->out(false). "'>quizleting</a>";
+            $this->content->text = html_writer::link($url,get_string('qq_exportlink','block_quizletquiz')); 
+ 
+            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'qq_direct'));
+            $this->content->text .= html_writer::link($url,get_string('qq_direct_exportlink','block_quizletquiz'));  
             
             $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd'));
-            $this->content->text .= html_writer::link($url,get_string('dd_exportlink','block_quizletquiz'));            
+            $this->content->text .= html_writer::link($url,get_string('dd_exportlink','block_quizletquiz'));     
+       /*     
+            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd_direct'));
+            $this->content->text .= html_writer::link($url,get_string('dd_direct_exportlink','block_quizletquiz'));
+        */
             
             $this->content->footer = '';
             return $this->content;

@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+require_once($CFG->dirroot . '/question/format.php');
+require_once($CFG->dirroot . '/question/format/xml/format.php');
+
 /**
  * Quizlet Quiz
  *
@@ -36,14 +39,30 @@ class block_quizletquiz_helper {
 	function block_quizletquiz_helper($exporttype=false) {
             $this->exporttype=$exporttype;
         }
-        
-       
-    //if question import export, make file
+   
+    //fetch question type file content, and export
     function export_qqfile($quizletsets,$questiontypes){
+        $filecontent = $this->make_qqfile($quizletsets, $questiontypes);
+        $filename ="quizletimportdata.xml";
+        send_file($filecontent, $filename, 0, 0, true, true);  
+        return;
+    }
+       
+     //fetch activity type file content, and export
+    function export_ddfile($quizletsets,$activitytypes){
+        $filecontent = $this->make_ddfile($quizletsets, $activitytypes);
+        $filename = "quizletset_dragdrop.txt";
+        send_file($filecontent, $filename, 0, 0, true, true); 
+        return;
+    }
+    
+    //if question import export, make file content
+    function make_qqfile($quizletsets,$questiontypes){
+         $config = get_config('block_quizletquiz'); 
         //Initialize Quizlet
 	//assumption here is that we authenticated back on the previous page
 	 $args = array( 'api_scope' => 'read');
-	$qiz  = new quizlet($args);
+	$qiz  = new quizlet_qq($args);
 	//if authenticated we can start fetching data
 	$select = "";
 	if($qiz->is_authenticated()){
@@ -99,7 +118,7 @@ class block_quizletquiz_helper {
     // add opening tag
     $expout = "";
     $counter=0;
-	$filename ="quizletimportdata.xml";
+	
 	//nesting on quizlet set, then question type, then each element in quizlet set as a question
 	foreach	($qiz_return['data'] as $quizletdata){
             if ( $entries = $quizletdata->terms) {
@@ -111,7 +130,7 @@ class block_quizletquiz_helper {
                           //print out category
                           $expout .= $this->print_category($quizletdata, $qtype);
                           
-                          //prepare date by question type for processing
+                          //prepare data by question type for processing
                           $terms = array();  
                           switch($questiontype){
                             case 'multichoice':
@@ -134,16 +153,16 @@ class block_quizletquiz_helper {
                                     $counter++;
                                     $expout .= $this->data_to_mc_sa_question($entry,$terms,$questiontype, $answerstyle,$counter);
                             }
-                         
+                            break;
                           case 'matching':
                             $entrycount = count($entries);
-                            $lastentries = $entrycount / $this->matchtermscount;
-                            $entriesmd = array_chunk($entries,$this->matchtermscount,true);
+                            $lastentries = $entrycount % $config->matchingsubcount;
+                            $entriesmd = array_chunk($entries,$config->matchingsubcount,true);
                             $entriesmdcount = count($entriesmd);
                             //here we pad the last chunk with additional entries if it is too small
                             if($entriesmdcount>1 && $lastentries > 0){
                                 for($x=0;$x<$lastentries;$x++){
-                                    $entriesmd[$entriesmdcount-1][]=$entriesmd[$entriesmdcount-2][$this->matchtermscount-$x-1];
+                                    $entriesmd[$entriesmdcount-1][]=$entriesmd[$entriesmdcount-2][$config->matchingsubcount-$x-1];
                                 }
                             }
                             //here we pass in chunks of entries to make matching questions
@@ -168,13 +187,11 @@ class block_quizletquiz_helper {
         // make the xml look nice
         $content = $this->xmltidy( $content );	
         //return the content
-        send_file($content, $filename, 0, 0, true, true);  
-        return;
+       return $content;
     }
         
    //if drag and drop export, make file
-    function export_ddfile($quizletsets,$activitytypes){
-           $filename = "quizletset_dragdrop.txt";
+    function make_ddfile($quizletsets,$activitytypes){    
            $content="";
            foreach($quizletsets as $qset){
                    $qset_params = explode("-", $qset);
@@ -185,8 +202,63 @@ class block_quizletquiz_helper {
                            $content.="name=$qsetname,activitytype=$activity,quizletset=$qsetid,quizletsettitle=$qsetname,mintime=0,showcountdown=0,showcompletion=0\n\n";
                    }
            }
-           send_file($content, $filename, 0, 0, true, true); 
-           return;
+           return $content;
+           
+   }
+   
+   function import_to_qbank($quizletsets,$questiontypes, $category, $pageurl){
+       global $CFG, $DB, $COURSE;
+       $success=true;
+       //get export file
+       $filecontent = $this->make_qqfile($quizletsets, $questiontypes);
+
+        $categorycontext = context::instance_by_id($category->contextid);
+        $category->context = $categorycontext;
+        $contexts = new question_edit_contexts($categorycontext);
+
+        $realfilename = 'quizlet_tmp' . time() . '.xml';
+        $importfile = "{$CFG->tempdir}/questionimport/{$realfilename}";
+        $result = make_temp_directory('questionimport');
+        if($result){$result = file_put_contents($importfile, $filecontent);}
+        if (!$result) {
+            throw new moodle_exception('uploadproblem');
+              $success=false;
+        }
+        //die;
+        //get the xml format processor
+        $qformat = new qformat_xml();
+
+        // load data into class
+        $qformat->setCategory($category);
+        $qformat->setContexts($contexts);
+        $qformat->setCourse($COURSE);
+        $qformat->setFilename($importfile);
+        $qformat->setRealfilename($realfilename);
+        $qformat->setMatchgrades('error');
+        $qformat->setCatfromfile(true);
+        $qformat->setContextfromfile(true);
+        $qformat->setStoponerror(true);
+
+        // Do anything before that we need to
+        if (!$qformat->importpreprocess()) {
+            print_error('cannotimport', '', $pageurl->out());
+              $success=false;
+        }
+
+        // Process the uploaded file
+        if (!$qformat->importprocess($category)) {
+            print_error('cannotimport', '', $pageurl->out());
+              $success=false;
+        }
+
+        // In case anything needs to be done after
+        if (!$qformat->importpostprocess()) {
+            print_error('cannotimport', '', $pageurl->out());
+            $success=false;
+        }
+
+         return $success;
+       
    }
     
         
@@ -196,7 +268,7 @@ class block_quizletquiz_helper {
     
     function print_category($quizletdata, $questiontype){
 		   $ret = "";
-		   $cleanname = $this->clean_name($quizletdata->title);
+		   $cleanname = $this->clean_name($quizletdata->title . '_' . $quizletdata->created_by . '_' . $quizletdata->id);
 		   $categorypath = $this->writetext( 'quizletquestions/' . $cleanname . '/' . $questiontype );
            $ret  .= "  <question type=\"category\">\n";
            $ret  .= "    <category>\n";

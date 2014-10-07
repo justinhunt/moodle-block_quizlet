@@ -29,7 +29,7 @@
  */
 
 require_once($CFG->libdir . '/formslib.php');
-
+require_once(dirname(__FILE__).'/quizlet.php');
 
 define('BLOCK_QUIZLETQUIZ_NO','0');
 define('BLOCK_QUIZLETQUIZ_MC_ABCSMALL','multichoice_abc');
@@ -105,16 +105,16 @@ abstract class block_quizletquiz_qq_form extends moodleform {
 class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
 
     public function definition() {
-        global $CFG, $USER, $OUTPUT, $PAGE;
+        global $CFG, $USER, $OUTPUT, $PAGE,$COURSE;
         $strrequired = get_string('required');
-        $mform = & $this->_form;
-        
+        $mform = & $this->_form;  
+        $exporttype= $this->_customdata['exporttype'];
+        $qsets = $this->_customdata['qsets'];
         
         //add a little explanation
          $mform->addElement('static','qq_selectexplanation','',get_string('selectinstructions','block_quizletquiz'));
         
-         //Get a list of quizlets
-       $qsets = $this->_customdata['qsets'];
+       //Get a list of quizlets
        $selectedsets = $mform->addElement('select', 'selectedsets', 
                 get_string('availablesets','block_quizletquiz'),$qsets,array('id'=>BLOCK_QUIZLETQUIZ_QQ_SELECTSET));
        
@@ -175,24 +175,38 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
         $matching_array[] =& $mform->createElement('radio', 'matching', '', get_string('yesmatching', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_MATCHING, $attributes);
         $matching_arraytable = $this->tablify($matching_array,1, 'matching_table',false);
 
-       
-        if($this->_customdata['exporttype']=='qq'){
-            $mform->addElement('static','qq_qchoiceexplanation','',get_string('qchoiceinstructions','block_quizletquiz'));
-            $mform->addGroup($sa_arraytable, 'shortanswer_group',get_string('shortanswer','block_quizletquiz'), array(' '), false);      
-            $mform->addGroup($mc_arraytable, 'multichoice_group',get_string('multichoice','block_quizletquiz'), array(' '), false);
-            $mform->addGroup($matching_arraytable, 'matching_group',get_string('matching','block_quizletquiz'), array(' '), false);
-        }else{
+
+        switch($exporttype){
+            case 'qq':
+            case 'qq_direct':
+                $mform->addElement('static','qq_qchoiceexplanation','',get_string('qchoiceinstructions','block_quizletquiz'));
+                $mform->addGroup($sa_arraytable, 'shortanswer_group',get_string('shortanswer','block_quizletquiz'), array(' '), false);      
+                $mform->addGroup($mc_arraytable, 'multichoice_group',get_string('multichoice','block_quizletquiz'), array(' '), false);
+                $mform->addGroup($matching_arraytable, 'matching_group',get_string('matching','block_quizletquiz'), array(' '), false);
+/*
+                if($exporttype == 'qq_direct'){
+                      $contexts = array();
+                      $contexts[] = context_course::instance($COURSE->id);
+                      $questioncategoryel = $mform->addElement('questioncategory', 'parentcategory', get_string('parentcategory', 'question'),
+                                    array('contexts'=>$contexts));
+                      $mform->setType('parentcategory', PARAM_SEQUENCE);
+                }
+ * 
+ */
+                break;
+            case 'dd':
+            case 'dd_direct':
                //add a little explanation
-            $mform->addElement('static','qq_actchoiceexplanation','',get_string('actchoiceinstructions','block_quizletquiz'));
-            $mform->addGroup($act_arraytable, 'activitytype_group', get_string('activitytypes','block_quizletquiz'), array(' '), false);
-        }
+                $mform->addElement('static','qq_actchoiceexplanation','',get_string('actchoiceinstructions','block_quizletquiz'));
+                $mform->addGroup($act_arraytable, 'activitytype_group', get_string('activitytypes','block_quizletquiz'), array(' '), false);
+           }
         
         //courseid
         $mform->addElement('hidden', 'courseid');
         $mform->setType('courseid', PARAM_INT);
        
         //export type
-	$mform->addElement('hidden', 'exporttype',$this->_customdata['exporttype']);
+	$mform->addElement('hidden', 'exporttype',$exporttype);
         $mform->setType('exporttype', PARAM_TEXT);
         
         //cm id
@@ -201,10 +215,19 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
         
 	$mform->addElement('hidden', 'action','qq_dataexport');
         $mform->setType('action', PARAM_TEXT);
-       if($this->_customdata['exporttype']=='qq'){
-        $this->add_action_buttons(true,get_string('exporttoquestionsheader','block_quizletquiz'));
-       }else{
-         $this->add_action_buttons(true,get_string('exporttoddropheader','block_quizletquiz'));  
+       switch($exporttype){
+           case 'qq':
+                $this->add_action_buttons(true,get_string('exporttoquestionsheader','block_quizletquiz'));
+               break;
+           case 'qq_direct':
+                $this->add_action_buttons(true,get_string('exporttoquestionsdirectheader','block_quizletquiz'));
+               break;
+            case 'dd':
+                $this->add_action_buttons(true,get_string('exporttoddropheader','block_quizletquiz')); 
+                break;
+            case 'dd_direct':
+                $this->add_action_buttons(true,get_string('exporttoddropdirectheader','block_quizletquiz')); 
+                break;
        }
     }//end of definition method
     /*
@@ -216,69 +239,8 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
 	
 }//end of class
 
-class block_quizletquiz_export_dd_form  extends block_quizletquiz_qq_form  {
 
-    public function definition() {
-        global $CFG, $USER, $OUTPUT, $PAGE;
-        $strrequired = get_string('required');
-        $mform = & $this->_form;
-        
-        //Get a list of quizlets
-       $qsets = $this->_customdata['qsets'];
-       $selectedsets = $mform->addElement('select', 'selectedsets', 
-               get_string('availablesets','block_quizletquiz'),$qsets,array('id'=>BLOCK_QUIZLETQUIZ_DD_SELECTSET));
-       $mform->setType('selectedsets', PARAM_TEXT);
-       $selectedsets->setMultiple(true);
-       
-       
-       
-       //$previewlink = html_writer::link('',get_string('previewset','block_quizletquiz'),array('onclick'=>''));
-       $previewbutton = html_writer::tag('input',null,
-                array('type'=>'button',
-                    'value'=>get_string('previewset','block_quizletquiz'),
-                    'name'=>'selectsetsubmit',
-                    'class'=>'block_quizletquiz_previewbutton',
-                    'onClick'=>'M.block_quizletquiz.iframehelper.update(\'' . BLOCK_QUIZLETQUIZ_DD_SELECTSET . '\')'));
-       $mform->addElement('static','dd_preview_button','',$previewbutton);
-       
-      
-       //activity types
-        $attributes = array();
-        $checkarray=array();
-        
-        $activities = array('flashcards' => get_string('acttype_flashcards', 'block_quizletquiz'),
-				'scatter'=>get_string('acttype_scatter', 'block_quizletquiz'),
-				'spacerace'=>get_string('acttype_spacerace', 'block_quizletquiz'),
-				'test'=>get_string('acttype_test', 'block_quizletquiz'),
-				'speller'=>get_string('acttype_speller', 'block_quizletquiz'),
-				'learn'=>get_string('acttype_learn', 'block_quizletquiz'));
-        foreach ($activities as $aid=>$atitle){
-                 $checkarray[] =& $mform->createElement('checkbox', 'activitytype', '', $atitle, $aid, $attributes);
-        }	
-        $checkarraytable = $this->tablify($checkarray,1, 'form',false);
-        $mform->addGroup($checkarraytable, 'activitytype_group', get_string('activitytypes','block_quizletquiz'), array(' '), false);
-		
-
-        //courseid
-	$mform->addElement('hidden', 'courseid');
-        $mform->setType('courseid', PARAM_INT);
-        
-        //export type
-	$mform->addElement('hidden', 'exporttype');
-        $mform->setType('exporttype', PARAM_TEXT);
-        
-        //cm id
-        $mform->addElement('hidden', 'id', 0);
-        $mform->setType('id', PARAM_INT);
-        
-	$mform->addElement('hidden', 'action');
-        $mform->setType('action', PARAM_TEXT);
-        $this->add_action_buttons(true,get_string('exporttoddropheader','block_quizletquiz'));
-	}
-	
-}
-
-class block_quizlet_search_form extends quizlet_search_form {
+class block_quizlet_search_form extends quizlet_search_form_qq {
      public function definition() {
         $mform = & $this->_form;
 	$mform->addElement('hidden', 'exporttype',$this->_customdata['exporttype']);
