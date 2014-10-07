@@ -132,3 +132,7 @@ $string['searchterms'] = 'Search by Term';
 $string['searchusers'] = 'Search by User';
 $string['searchmysets'] = 'Fetch My Sets';
 $string['searchtext'] = 'Search Terms';
+$string['answerside'] = 'Answer Side';
+$string['termasanswer'] = 'The front side/term of the card.(default)';
+$string['definitionasanswer'] = 'The reverse side/definition of the card.';
+$string['answersideinstructions'] = 'The front face of a flashcard is by default the "term" and the reverse side the "definition." When exporting as questions, usually the term is the question answer. Some quizlet sets may not suit this. In that case it is possible here to select the "definition" as the answer. NB Images will not be used as question answers, so the default is the best option for Quizlet sets with images.';

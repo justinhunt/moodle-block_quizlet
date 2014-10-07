@@ -41,8 +41,8 @@ class block_quizletquiz_helper {
         }
    
     //fetch question type file content, and export
-    function export_qqfile($quizletsets,$questiontypes){
-        $filecontent = $this->make_qqfile($quizletsets, $questiontypes);
+    function export_qqfile($quizletsets,$questiontypes, $answerside){
+        $filecontent = $this->make_qqfile($quizletsets, $questiontypes,$answerside);
         $filename ="quizletimportdata.xml";
         send_file($filecontent, $filename, 0, 0, true, true);  
         return;
@@ -57,7 +57,7 @@ class block_quizletquiz_helper {
     }
     
     //if question import export, make file content
-    function make_qqfile($quizletsets,$questiontypes){
+    function make_qqfile($quizletsets,$questiontypes, $answerside){
          $config = get_config('block_quizletquiz'); 
         //Initialize Quizlet
 	//assumption here is that we authenticated back on the previous page
@@ -134,12 +134,17 @@ class block_quizletquiz_helper {
                           $terms = array();  
                           switch($questiontype){
                             case 'multichoice':
-                            case 'matching':
+                           
                                     $answerstyle = $questiontype_params[1];   
                                     foreach ($entries as $entry) {
-                                            $terms[] = $entry->term;          
+                                            if($answerside==0){
+                                                $terms[] = $entry->term;
+                                            }else{
+                                                $terms[] = $entry->definition;
+                                            }
                                     }
                                     break;
+                            case 'matching':
                             case 'shortanswer':
                                     $answerstyle = $questiontype_params[1];
                                     break;
@@ -151,7 +156,7 @@ class block_quizletquiz_helper {
                           case 'shortanswer':
                             foreach ($entries as $entry) {
                                     $counter++;
-                                    $expout .= $this->data_to_mc_sa_question($entry,$terms,$questiontype, $answerstyle,$counter);
+                                    $expout .= $this->data_to_mc_sa_question($entry,$terms,$questiontype, $answerstyle,$counter,$answerside);
                             }
                             break;
                           case 'matching':
@@ -168,7 +173,7 @@ class block_quizletquiz_helper {
                             //here we pass in chunks of entries to make matching questions
                             $qsetname = $this->clean_name($quizletdata->title);
                             foreach ($entriesmd as $entryset){
-                                $expout .= $this->data_to_matching_question($entryset,$questiontype, $qsetname . '_' . $counter, $counter);
+                                $expout .= $this->data_to_matching_question($entryset,$questiontype, $qsetname . '_' . $counter, $counter,$answerside);
                                 $counter++;
                             }
                               
@@ -206,11 +211,11 @@ class block_quizletquiz_helper {
            
    }
    
-   function import_to_qbank($quizletsets,$questiontypes, $category, $pageurl){
+   function import_to_qbank($quizletsets,$questiontypes, $answerside,$category, $pageurl){
        global $CFG, $DB, $COURSE;
        $success=true;
        //get export file
-       $filecontent = $this->make_qqfile($quizletsets, $questiontypes);
+       $filecontent = $this->make_qqfile($quizletsets, $questiontypes, $answerside);
 
         $categorycontext = context::instance_by_id($category->contextid);
         $category->context = $categorycontext;
@@ -279,7 +284,7 @@ class block_quizletquiz_helper {
 	}
 
    
-   function data_to_matching_question($allentries, $questiontype, $qname, $counter){
+   function data_to_matching_question($allentries, $questiontype, $qname, $counter,$answerside){
 	
             $ret = "";          
             $ret .= "\n\n<!-- question: $counter  -->\n";            
@@ -290,15 +295,20 @@ class block_quizletquiz_helper {
             $ret .= $this->writetext(get_string('matchingquestiontext','block_quizletquiz'),2,false);
             $ret .= "    </questiontext>\n";
             foreach($allentries as $entry){
-                $thedefinition = trusttext_strip($entry->definition);
-                $theterm = trusttext_strip($entry->term);
+                if($answerside==0){
+                    $thedefinition = trusttext_strip($entry->definition);
+                    $theterm = trusttext_strip($entry->term);
+                }else{
+                   $thedefinition = trusttext_strip($entry->term);
+                    $theterm = trusttext_strip($entry->definition); 
+                }
                 $theimage = $entry->image;
                 
                 switch($questiontype){
                     case 'matching':
                          $ret .= "<subquestion format=\"html\">\n ";
                          if($theimage){
-                            $ret .= $this->writeimage( $theimage)."\n";  
+                            $ret .= $this->writeimage( $theimage,'base64',$thedefinition)."\n";  
                          }else{
                             $ret .= $this->writetext( $thedefinition,3,false )."\n";          
                          }
@@ -317,11 +327,16 @@ class block_quizletquiz_helper {
 	
         
         
-	function data_to_mc_sa_question($entry,$allterms, $questiontype, $answerstyle, $counter){
+	function data_to_mc_sa_question($entry,$allterms, $questiontype, $answerstyle, $counter,$answerside){
 	
 		$ret = "";
-		$definition = trusttext_strip($entry->definition);
-            $currentterm = trusttext_strip($entry->term);
+            if($answerside==0){
+                $definition = trusttext_strip($entry->definition);
+                $currentterm = trusttext_strip($entry->term);
+            }else{
+                $definition = trusttext_strip($entry->term);
+                $currentterm = trusttext_strip($entry->definition);
+            }
             $currentimage = $entry->image;
             
         	$ret .= "\n\n<!-- question: $counter  -->\n";            
@@ -331,7 +346,7 @@ class block_quizletquiz_helper {
             $ret .= "    <name>$name_text</name>\n";
             $ret .= "    <questiontext format=\"$qtformat\">\n";
             if($entry->image){
-            	 $ret .= $this->writeimage( $currentimage);
+            	 $ret .= $this->writeimage( $currentimage,'base64',$definition);
             }else{
             	$ret .= $this->writetext( $definition );
             }
@@ -426,7 +441,7 @@ class block_quizletquiz_helper {
         return $xml;
     }
 
-    function writeimage($image, $encoding='base64') {
+    function writeimage($image, $encoding='base64',$text='') {
         if (!($image)) {
             return '';
         }
@@ -435,7 +450,7 @@ class block_quizletquiz_helper {
         $height = $image->height;
         $imagestring = $this->fetchimage($image->url);
         $string = '';
-		$string .= '<text><![CDATA[<p><img src="@@PLUGINFILE@@/' . $filename . '" alt="' . $filename . '" width="' . $width . '"  height="' . $height . '" /></p>]]></text>';
+		$string .= '<text><![CDATA[' . $text . '<p><img src="@@PLUGINFILE@@/' . $filename . '" alt="' . $filename . '" width="' . $width . '"  height="' . $height . '" /></p>]]></text>';
 		$string .= '<file name="' . $filename . '" path="/" encoding="' . $encoding . '">';
 		$string .= base64_encode($imagestring);
 		$string .= '</file>';

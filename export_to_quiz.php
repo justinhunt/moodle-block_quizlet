@@ -162,7 +162,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                 if(count($questiontypes)>0){
                     //if we have questions, export to file
                     if($exporttype == 'qq'){
-                        $bqh->export_qqfile($selectedsets,$questiontypes);
+                        $bqh->export_qqfile($selectedsets,$questiontypes,$qform_data->answerside);
                     
                     //or we export to questionbank    
                     }else{
@@ -170,7 +170,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                         echo $renderer->header();
                         //get default category for this course
                         $category = question_get_default_category($context->id);
-                        $success = $bqh->import_to_qbank($selectedsets,$questiontypes, $category, $url);
+                        $success = $bqh->import_to_qbank($selectedsets,$questiontypes,$qform_data->answerside, $category, $url);
                        /*  $params = $pageurl->params() + array(
                             'category' => $qformat->category->id . ',' . $qformat->category->contextid);
                             */

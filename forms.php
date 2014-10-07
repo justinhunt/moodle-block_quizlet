@@ -183,16 +183,15 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
                 $mform->addGroup($sa_arraytable, 'shortanswer_group',get_string('shortanswer','block_quizletquiz'), array(' '), false);      
                 $mform->addGroup($mc_arraytable, 'multichoice_group',get_string('multichoice','block_quizletquiz'), array(' '), false);
                 $mform->addGroup($matching_arraytable, 'matching_group',get_string('matching','block_quizletquiz'), array(' '), false);
-/*
-                if($exporttype == 'qq_direct'){
-                      $contexts = array();
-                      $contexts[] = context_course::instance($COURSE->id);
-                      $questioncategoryel = $mform->addElement('questioncategory', 'parentcategory', get_string('parentcategory', 'question'),
-                                    array('contexts'=>$contexts));
-                      $mform->setType('parentcategory', PARAM_SEQUENCE);
-                }
- * 
- */
+                
+                $answerside_array=array('0'=>get_string('termasanswer','block_quizletquiz'),'1'=>get_string('definitionasanswer','block_quizletquiz'));
+                
+                //add a little explanation
+                $mform->addElement('static','answersideinstructions',get_string('answerside','block_quizletquiz'),get_string('answersideinstructions','block_quizletquiz'));
+                $mform->addElement('select','answerside','',$answerside_array);
+        
+                        
+                
                 break;
             case 'dd':
             case 'dd_direct':
