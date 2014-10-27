@@ -126,7 +126,7 @@ $string['matchingquestiontext'] = 'Match the items on the left hand side, with t
 $string['matchingsubcount'] = 'Matching Question Sub-Question Count';
 $string['matchingsubcount_details'] = 'The number of matching-pairs to be contained within a single generated matching question.';
 
-
+$string['selectset'] = 'Select Quizlet Set';
 $string['searchtitles'] = 'Search by Title and Subject';
 $string['searchterms'] = 'Search by Term';
 $string['searchusers'] = 'Search by User';
@@ -136,6 +136,9 @@ $string['answerside'] = 'Answer Side';
 $string['termasanswer'] = 'The front side/term of the card.(default)';
 $string['definitionasanswer'] = 'The reverse side/definition of the card.';
 $string['answersideinstructions'] = 'The front face of a flashcard is by default the "term" and the reverse side the "definition." When exporting as questions, usually the term is the question answer. Some quizlet sets may not suit this. In that case it is possible here to select the "definition" as the answer. NB Images will not be used as question answers, so the default is the best option for Quizlet sets with images.';
+
+$string['coursesection'] = 'Course Section';
+$string['sectionchoiceinstructions'] = 'Select the course section here to which the quizlet activities will be appended.';
 
 $string['quizletquiz:addinstance'] = 'Add Quizlet Quiz block';
 $string['quizletquiz:myaddinstance'] = 'Add Quizlet Quiz block to MyHome';

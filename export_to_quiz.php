@@ -132,15 +132,19 @@ if($searchresult['success']){
 	$usedata = $qiz->fetch_set_as_array($setdata);
 }
 
+ //get our quizlet quiz helper class thingy
+ $bqh = new block_quizletquiz_helper();
 
+
+//get sections for display in section box
+$sections = $bqh->fetch_section_list();
 
 //deal with question export form
  $badmessage =false;
-$qform = new block_quizletquiz_export_form(null,array('exporttype'=>$exporttype,'qsets'=>$usedata));
+$qform = new block_quizletquiz_export_form(null,array('exporttype'=>$exporttype,'qsets'=>$usedata,'sections'=>$sections));
 
 if($action=='qq_dataexport' && !$qform->is_cancelled()){
     $qform_data = $qform->get_data();
-    $bqh = new block_quizletquiz_helper();
     
     //if we have not selected set, refuse to proceed
     if(count($selectedsets)==0){
@@ -170,7 +174,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                         echo $renderer->header();
                         //get default category for this course
                         $category = question_get_default_category($context->id);
-                        $success = $bqh->import_to_qbank($selectedsets,$questiontypes,$qform_data->answerside, $category, $url);
+                        $success = $bqh->export_qq_to_qbank($selectedsets,$questiontypes,$qform_data->answerside, $category, $url);
                        /*  $params = $pageurl->params() + array(
                             'category' => $qformat->category->id . ',' . $qformat->category->contextid);
                             */
@@ -201,9 +205,15 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                     if($exporttype=='dd'){
                         $bqh->export_ddfile($selectedsets,$activitytypes);
                     }else{
-                        $bqh->export_ddfile($selectedsets,$activitytypes);
+					  echo $renderer->header();
+						$section = $qform_data->section;
+                        $bqh->export_dd_to_course($selectedsets,$activitytypes, $section);
+						 $params =  array('id' => $courseid);
+                        echo $OUTPUT->continue_button(new moodle_url('/course/view.php', $params));
+                        echo $renderer->footer();
+                        exit;
                     }
-                   //the selectesets won't come through in form data, for validation reasons I think
+                   //the selectedsets won't come through in form data, for validation reasons I think
                     //$bqh->export_ddfile($qform_data->selectedsets,$qform_data->activitytype);
                 }else{
                     $badmessage = get_string('noactivitytype', 'block_quizletquiz');

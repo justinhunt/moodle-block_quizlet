@@ -110,6 +110,7 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
         $mform = & $this->_form;  
         $exporttype= $this->_customdata['exporttype'];
         $qsets = $this->_customdata['qsets'];
+		$sections = $this->_customdata['sections'];
         
         //add a little explanation
          $mform->addElement('static','qq_selectexplanation','',get_string('selectinstructions','block_quizletquiz'));
@@ -199,7 +200,17 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
                 $mform->addElement('static','qq_actchoiceexplanation','',get_string('actchoiceinstructions','block_quizletquiz'));
                 $mform->addGroup($act_arraytable, 'activitytype_group', get_string('activitytypes','block_quizletquiz'), array(' '), false);
            }
-        
+		   
+		//Course Sections   
+        if($exporttype=='dd_direct'){
+			 //Get a list of course sections, explain the deal first
+			$mform->addElement('static','qq_sectionchoiceexplanation','',get_string('sectionchoiceinstructions','block_quizletquiz'));
+			
+			$mform->addElement('select', 'section', 
+                get_string('coursesection','block_quizletquiz'),$sections);
+		}
+		
+		
         //courseid
         $mform->addElement('hidden', 'courseid');
         $mform->setType('courseid', PARAM_INT);

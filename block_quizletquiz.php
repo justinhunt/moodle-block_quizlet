@@ -45,10 +45,10 @@ class block_quizletquiz extends block_base {
             
             $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd'));
             $this->content->text .= html_writer::link($url,get_string('dd_exportlink','block_quizletquiz'));     
-       /*     
+            
             $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd_direct'));
             $this->content->text .= html_writer::link($url,get_string('dd_direct_exportlink','block_quizletquiz'));
-        */
+        
             
             $this->content->footer = '';
             return $this->content;

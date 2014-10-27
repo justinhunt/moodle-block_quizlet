@@ -16,6 +16,7 @@
 
 require_once($CFG->dirroot . '/question/format.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 /**
  * Quizlet Quiz
@@ -47,14 +48,7 @@ class block_quizletquiz_helper {
         send_file($filecontent, $filename, 0, 0, true, true);  
         return;
     }
-       
-     //fetch activity type file content, and export
-    function export_ddfile($quizletsets,$activitytypes){
-        $filecontent = $this->make_ddfile($quizletsets, $activitytypes);
-        $filename = "quizletset_dragdrop.txt";
-        send_file($filecontent, $filename, 0, 0, true, true); 
-        return;
-    }
+
     
     //if question import export, make file content
     function make_qqfile($quizletsets,$questiontypes, $answerside){
@@ -196,22 +190,84 @@ class block_quizletquiz_helper {
     }
         
    //if drag and drop export, make file
-    function make_ddfile($quizletsets,$activitytypes){    
-           $content="";
+    function make_ddfile($quizletsets,$activitytypes,$asarray=false){    
+           $stringcontent="";
+		   $arraycontent=array();
            foreach($quizletsets as $qset){
                    $qset_params = explode("-", $qset);
            $qsetid = $qset_params[0];
            $qsetname = $qset_params[1];
 
                     foreach($activitytypes as $activity){
-                           $content.="name=$qsetname,activitytype=$activity,quizletset=$qsetid,quizletsettitle=$qsetname,mintime=0,showcountdown=0,showcompletion=0\n\n";
+						$newcontent = "name=$qsetname,activitytype=$activity,quizletset=$qsetid,quizletsettitle=$qsetname,mintime=0,showcountdown=0,showcompletion=0";
+						if($asarray){
+							$arraycontent[]= $newcontent;
+						}else{
+                           $stringcontent.=$newcontent . "\n\n";
+						  }
                    }
            }
-           return $content;
-           
+		   
+		   if($asarray){
+				return $arraycontent;
+			}else{
+				return $stringcontent;
+			}
    }
    
-   function import_to_qbank($quizletsets,$questiontypes, $answerside,$category, $pageurl){
+   
+     //fetch activity type file content, and export
+    function export_ddfile($quizletsets,$activitytypes){
+		$asarray = false;
+        $filecontent = $this->make_ddfile($quizletsets, $activitytypes,$asarray);
+        $filename = "quizletset_dragdrop.txt";
+        send_file($filecontent, $filename, 0, 0, true, true); 
+        return;
+    }
+   
+   function export_dd_to_course($quizletsets,$activitytypes,$section){
+		global $CFG, $COURSE;
+		require_once($CFG->dirroot . '/mod/quizletimport/lib.php');
+
+		$asarray=true;
+		$activities =  $this->make_ddfile($quizletsets, $activitytypes,$asarray);
+		
+		foreach($activities as $activity){
+			$moddata = quizletimport_parse_instancestring($activity);
+			$moddata->modulename = 'quizletimport';
+			$moddata->visible=true;
+			$moddata->course = $COURSE->id;
+			$moddata->section=$section;
+			
+			switch ($moddata->activitytype){
+				case quizlet::TYPE_CARDS: $aname = 'Flashcards'; break;
+				case quizlet::TYPE_SCATTER:  $aname = 'Scatter'; break;
+				case quizlet::TYPE_SPACERACE:  $aname = 'Spacerace'; break;
+				case quizlet::TYPE_TEST:  $aname = 'Test'; break;
+				case quizlet::TYPE_SPELLER:  $aname = 'Speller'; break;
+				case quizlet::TYPE_LEARN:  $aname = 'Learn'; break;
+			}
+			//$moddata->introeditor = array('text' => $moddata->quizletsettitle . ':' . $aname,'format' => 1, 'itemid'=>0);
+			$moddata->introeditor = array('text' => $moddata->name,'format' => 1, 'itemid'=>0);
+			create_module($moddata);
+		}
+   }
+   
+   //fetch a mform ready list of course sections for appending activities to
+   function fetch_section_list(){
+	global $CFG, $COURSE, $DB;
+	$conditions=array('course'=>$COURSE->id);
+	$sections = $DB->get_records_menu('course_sections',$conditions,'section','section,name'); 
+	 //massage the section data a little, just in case the name field is blank
+	 $usesections = array();
+	 foreach($sections as $sectionid=>$sectionname){
+		$usesections[$sectionid] = $sectionid . ': ' . $sectionname;
+	 }
+    return $usesections;
+   }
+   
+     //export direct to qbank
+   function export_qq_to_qbank($quizletsets,$questiontypes, $answerside,$category, $pageurl){
        global $CFG, $DB, $COURSE;
        $success=true;
        //get export file
@@ -261,7 +317,6 @@ class block_quizletquiz_helper {
             print_error('cannotimport', '', $pageurl->out());
             $success=false;
         }
-
          return $success;
        
    }
