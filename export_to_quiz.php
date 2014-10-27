@@ -62,7 +62,7 @@ if( $courseid==0){
 $context = context_course::instance($courseid);
 $PAGE->set_course($course);
 
-$url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$courseid));
+$url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$courseid, 'action'=>$action));
 $PAGE->set_url($url);
 $PAGE->set_heading($SITE->fullname);
 $PAGE->set_pagelayout('course');
@@ -175,13 +175,13 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                         //get default category for this course
                         $category = question_get_default_category($context->id);
                         $success = $bqh->export_qq_to_qbank($selectedsets,$questiontypes,$qform_data->answerside, $category, $url);
-                       /*  $params = $pageurl->params() + array(
-                            'category' => $qformat->category->id . ',' . $qformat->category->contextid);
-                            */
-                       
+                    
+                    	//prepare continue page
+						 $params =  array('courseid' => $courseid);
+						 $nexturl = new moodle_url('/question/edit.php', $params);
+						 $nextmessage = get_string('exportedqqtoqbank', 'block_quizletquiz');
+						 echo $renderer->display_continue_page($nexturl,$nextmessage);
                         
-                         $params =  array('courseid' => $courseid);
-                        echo $OUTPUT->continue_button(new moodle_url('/question/edit.php', $params));
                         echo $renderer->footer();
                         exit;
                     }
@@ -208,8 +208,13 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
 					  echo $renderer->header();
 						$section = $qform_data->section;
                         $bqh->export_dd_to_course($selectedsets,$activitytypes, $section);
+						 
+						 //prepare continue page
 						 $params =  array('id' => $courseid);
-                        echo $OUTPUT->continue_button(new moodle_url('/course/view.php', $params));
+						 $nexturl = new moodle_url('/course/view.php', $params);
+						 $nextmessage = get_string('exportedddtocourse', 'block_quizletquiz');
+						echo $renderer->display_continue_page($nexturl,$nextmessage);
+                        
                         echo $renderer->footer();
                         exit;
                     }

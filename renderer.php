@@ -37,7 +37,13 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
 		return html_writer::link($authlink, get_string('quizletlogin', 'block_quizletquiz'));
 	}
 
-        function echo_quizlet_search_form($form){
+	function display_continue_page($nexturl, $message){
+		$nextmessage = $this->output->heading($message, 3, 'main');
+		return $nextmessage . $this->output->continue_button($nexturl);
+	}
+
+
+    function echo_quizlet_search_form($form){
 		echo $this->output->heading(get_string('selectset','block_quizletquiz'), 3, 'main');
 		echo $this->output->box_start('generalbox');
 		$form->display();
