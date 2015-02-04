@@ -1,149 +1,149 @@
 <?php 
-$string['allentries'] = 'すべてのエントリー';
-$string['clicktoexport'] = 'このQuizletセットを小テスト（XML）としてエクスポートする';
-$string['concept'] = 'アルファベット順';
-$string['emptyglossaries'] = 'このQuizletは空です（エントリーがありません）';
-$string['emptyglossary'] = 'このQuizletは空です（エントリーがありません）';
-$string['exportentriestoxml'] = 'エントリーを小テスト（XML）としてエクスポートする';
-$string['firstmodified'] = '古いエントリーから表示する';
-$string['lastmodified'] = '新しいエントリーから表示する';
-$string['limitnum'] = 'エクスポートする最大エントリー数';
-$string['limitnum_help'] = '選択したQuizletセットから全てのエントリーをエクスポートするには空のままにしておいてください。このオプションはサイズの大きなセット群から一部のエントリーをエクスポートするのに役立ちます。';
-$string['multichoice'] = '多肢選択';
-$string['notenoughentries'] = '十分なエントリー数(<b>{$a->numentries}</b>) が多肢選択の<b>用語集</b> <em>{$a->varnotenough}</em> にありません。'; 
-$string['numentries'] = ' {$a} 個のエントリーをエクスポートする';
-$string['noglossaries'] = 'このコースには用語集がありません';
-$string['nolink'] = '用語集への自動リンクを削除する';
-$string['notyetconfigured'] = 'このブロックを設定するには<b>編集モードの開始</b>をクリックしてください。';
-$string['notyetconfiguredediting'] = '編集アイコンをクリックしてこのブロックを設定してください。';
+$string['allentries'] = 'All entries';
+$string['clicktoexport'] = 'Click to export this quizlet sets entries to quiz (XML)';
+$string['concept'] = 'Alphabetical order';
+$string['emptyglossaries'] = 'These quizlet sets are empty (no entries)';
+$string['emptyglossary'] = 'This quizlet set is empty (no entries)';
+$string['exportentriestoxml'] = 'Export entries to Quiz (XML)';
+$string['firstmodified'] = 'Oldest entries first';
+$string['lastmodified'] = 'Most recent entries first';
+$string['limitnum'] = 'Maximum number of entries to export';
+$string['limitnum_help'] = 'Leave empty to export all entries from selected quizlet set. 
+This option can be useful for exporting a limited number of entries from very large sets.';
+$string['multichoice'] = 'Multiple Choice';
+$string['notenoughentries'] = 'Not enough entries (<b>{$a->numentries}</b>) in <b>Glossary</b> <em>{$a->varnotenough}</em> for Multichoice questions.'; 
+$string['numentries'] = 'Export {$a} entries';
+$string['noglossaries'] = 'No glossaries in this course';
+$string['nolink'] = 'Remove glossary autolinks';
+$string['notyetconfigured'] = 'Please <b>Turn editing on</b> to configure this block.';
+$string['notyetconfiguredediting'] = 'Please configure this block using the edit icon.';
 $string['pluginname'] = 'QuizletQuiz';
-$string['questiontype'] = '設問タイプ:';
-$string['questiontype_help'] = 'Quizletのエントリーは小テストの問題バンクに多肢選択かショートアンサー形式としてエクスポートできます。
-多肢選択問題は次の要素から構成されます：
+$string['questiontype'] = 'Question type:';
+$string['questiontype_help'] = 'Quizlet entries can be exported to the Quiz Questions bank either as multiple choice or short answer questions.
+Multiple choice questions will consist of the following elements:
 
-* 質問テキスト：　Quizletエントリーの（用語）定義
-* 正解 = Quizletエントリーの用語
-* distracters = 選択した用語集（またはカテゴリー）からランダム抽出した3つのQuizlet用語
+* question text = quizlet entry definition
+* correct answer = quizlet entry concept
+* distracters = 3 quizlet entry concepts randomly selected from the glossary (or glossary category) that you have selected.
 
-ショートアンサー（短答式）設問
+Short answer questions
 
-* 大文字小文字の区別をしない
-** 例：　"Moodle" "mooodle" いずれも正解とする
-* 大文字小文字を区別する
-** 例：　"Moodle"が正解の場合、"moodle"は不正解とする。';
+* Case insensitive. Student responses will be accepted as correct regardless of the original glossary entry concept case (uppercase or lowercase).
+** Example: original entry "Moodle". Accepted correct responses: "Moodle", "moodle".
+* Case sensitive. Student responses will be only be accepted as correct it the case of the original glossary entry concept is used..
+** Example: original entry "Moodle". Accepted correct response: "Moodle".';
+$string['random'] = 'Randomly';
+$string['selectquizletset'] = 'Select Quizlet Set to export from';
+$string['selectquizletset_help'] = 'Use the dropdown list to select the quizlet set that you want to use to export its entries to the quiz questions bank. 
+To cancel your choice or to reset the block, simply leave the dropdown list on the Choose... position.';
+$string['shortanswer'] = 'Short answer';
+$string['shortanswer_0'] = 'Short answer (Case insensitive)';
+$string['shortanswer_1'] = 'Short answer (Case sensitive)';
+$string['sortingorder'] = 'Sorting Order';
+$string['sortingorder_help'] = 'Use this setting to determine how the exported quizlet set entries will be ordered when you import them to your questions data bank.
+This can be used, in combination with the Maximum number of entries, for creating a quiz to test the latest entries to your glossary (especially a fairly large one). ';
+$string['quizlettoquizzes'] = 'Quizlet to Quizzes';
+$string['noquizletsets'] = 'No Quizlet Sets';
 
-$string['random'] = 'ランダムに';
-$string['selectquizletset'] = 'エクスポートするQuizletセットを選択する';
-$string['selectquizletset_help'] = 'ドロップダウンメニューを使用して、問題バンクにエクスポートするQuizletセットを選択してください。
-選択をキャンセルするか、ブロックをリセットするには、ドロップダウンメニューの "選択する" を選んでください。';
-$string['shortanswer'] = 'ショートアンサー';
-$string['shortanswer_0'] = 'ショートアンサー（ケースセンシティブではない）';
-$string['shortanswer_1'] = 'ショートアンサー（ケースセンシティブ)';
-$string['sortingorder'] = '表示順';
-$string['sortingorder_help'] = '問題バンクにインポートする際のエントリーの表示順序を指定できます。
-この設定は最大エントリー数の設定と組合せて使用します。';
-$string['quizlettoquizzes'] = 'Quizletから小テストへ';
-$string['noquizletsets'] = 'Quizletのセットがありません';
+$string['displayoptions'] = 'qi display options';
+$string['configdisplayoptions'] = 'qi cfg display options';
+$string['printheading'] = 'qi printheading';
+$string['printheadingexplain'] = 'qi printheading expl';
 
-$string['displayoptions'] = 'qi 表示オプション';
-$string['configdisplayoptions'] = 'qi 表示オプションを設定する';
-$string['printheading'] = 'qi ヘッダをプリントする';
-$string['printheadingexplain'] = 'qi ヘッダプリントの説明';
-
-$string['apikey'] = 'APIキー';
+$string['apikey'] = 'API Key';
 $string['apisecret'] = 'API Secret';
-$string['apikeyexplain'] = 'これはQuizlet.comで作成できます。';
-$string['apisecretexplain'] = 'これはQuizlet.comで作成できます。';
+$string['apikeyexplain'] = 'This can be generated over at quizlet.com';
+$string['apisecretexplain'] = 'This can be generated over at quizlet.com';
 
-$string['usersets'] = 'ユーザのQuizletセット';
-$string['availablesets'] = 'Quizletセット';
-$string['quizletloginlabel'] = 'Quizletへのログイン';
-$string['quizletlogin'] = 'QuizletセットにアクセスするにはQuizlet.comにログインし、許可してください。';
-$string['quizleterror'] = 'Quizletエラー';
-$string['activitytype'] = 'アクティビティタイプ';
-$string['acttype_flashcards'] = 'フラッシュカード/Flashcards';
-$string['acttype_scatter'] = 'スキャター/Scatter';
-$string['acttype_speller'] = 'スペル練習/Speller';
-$string['acttype_learn'] = '学習モード/Learn';
-$string['acttype_spacerace'] = 'スペースレース/Space Race';
-$string['acttype_test'] = 'テストモード/Test';
-$string['acttype_moodlequiz'] = 'Moodleの小テスト';
+$string['usersets'] = 'Users Quizlet Sets';
+$string['availablesets'] = 'Quizlet Sets';
+$string['quizletloginlabel'] = 'Quizlet Login';
+$string['quizletlogin'] = 'Login and confirm with quizlet to access your quizlet sets';
+$string['quizleterror'] = 'Quizlet Error';
+$string['activitytype'] = 'Activity Type';
+$string['acttype_flashcards'] = 'Flashcards';
+$string['acttype_scatter'] = 'Scatter';
+$string['acttype_speller'] = 'Speller';
+$string['acttype_learn'] = 'Learn';
+$string['acttype_spacerace'] = 'Space Race';
+$string['acttype_test'] = 'Test';
+$string['acttype_moodlequiz'] = 'Moodle Quiz';
 
-$string['mintime'] = '最小限の学習時間';
-$string['mintimedetails'] = '0にすると、システム管理者がQuizletインポートモジュール設定で指定したデフォルト値がセットされます。';
-$string['width'] = '横幅';
-$string['height'] = '高さ';
-$string['completed'] = 'アクティビティの完了';
-$string['timeleft'] = '完了までの時間:';
-$string['showcountdown'] = '完了までのカウントダウンを表示する';
+$string['mintime'] = 'Minimum Time Required';
+$string['mintimedetails'] = 'If set to 0, the minimum time will be taken from the default settings on the configuration page for the Quizlet Import module in site administration.';
+$string['width'] = 'width';
+$string['height'] = 'height';
+$string['completed'] = 'Activity Complete';
+$string['timeleft'] = 'Time till complete:';
+$string['showcountdown'] = 'Show Countdown to Completion';
 $string['showcompletion'] = 'Show Completion Label when Complete';
-$string['createquizletimport'] = 'Quizlet活動を作成する';
-$string['quizletsetinput'] = 'QuizletセットのID';
-$string['exporttofileheader'] = 'Quizletセットのエクスポート';
-$string['exportqqfile'] = 'Quizletセットをインポートファイルにエクスポートする';
-$string['exportqqdirect'] = 'Quizletセットを問題バンクにエクスポートする';
-$string['exportddfile'] = 'Quizletセットをドラッグ&ドロップファイルにエクスポートする';
-$string['exportdddirect'] = 'QuizletセットをQuizletインポート活動としてエクスポートする';
-$string['createmquiz'] = 'Moodleの小テストを作成する';
-$string['shortanswer'] = 'ショートアンサー';
-$string['shortanswer_0'] = 'ショートアンサー（ケースセンシティブではない）';
-$string['shortanswer_1'] = 'ショートアンサー（ケースセンシティブ)';
-$string['multichoice'] = '多肢選択';
-$string['defmintime_heading'] = 'アクティビティの最小学習時間（秒）のデフォルト値';
-$string['defcompletion_heading'] = '完了設定のデフォルト値（この時間を超えると完了とみなす）';
-$string['searchtitles'] = 'タイトルと科目で検索する';
-$string['searchterms'] = 'エントリー用語で検索する';
-$string['searchusers'] = 'ユーザーで検索する';
-$string['searchmysets'] = '自分のセットを取得する';
-$string['exporttofileheader'] = 'Quizletセットの出力';
-$string['exporttoquestionsheader'] = 'Moodle　XMLファイルとしてエクスポートする';
-$string['exporttoddropheader'] = 'MoodleのDrag&Dropファイルとしてエクスポートする';
-$string['exporttoquestionsdirectheader'] = 'Moodleの問題バンクにエクスポートする';
-$string['exporttoddropdirectheader'] = 'Quizletインポート活動としてエクスポートする';
-$string['selectforexport'] = 'エクスポートを実行するQuiletセットを選択してください';
-$string['searchdetails'] = 'エクスポートを実行するQuizletセットを検索する';
-$string['exporttoquestions'] = 'Quizletセットと問題タイプを選択してください。Moodleにインポート可能な設問としてエクスポートするにはボタンをクリックしてください。<br />';
-$string['exporttoddrop'] = 'Quizletセットと活動タイプを選択してください。ドラッグ&ドロップタイプとしてエクスポートするにはボタンをクリックしてください。<br />';
-$string['previewset'] = '選択したセットをプレビューする';
-$string['noshortanswer'] = 'ショートアンサー問題なし';
-$string['nomultichoice'] = '多肢選択問題なし';
-$string['answernumberingnone'] = '番号なし';
-$string['activitytypes'] = '活動タイプ';
-$string['selectinstructions'] = '下の一覧から1つ以上の、エクスポート対象のQuizletセットを選択してください。リストが表示されない場合は、上の検索フォームを使用してください。';
-$string['qchoiceinstructions'] = '1つ以上の問題タイプを選択してください。';
-$string['actchoiceinstructions'] = '1つ以上の活動タイプを選択してください。';
-$string['dd_exportlink'] = '活動インポートファイルとしてエクスポートする<br />';
-$string['qq_exportlink'] = '小テストインポートファイルとしてエクスポートする<br />';
-$string['dd_direct_exportlink'] = '現在のコースの活動としてエクスポートする<br />';
-$string['qq_direct_exportlink'] = '問題バンクに問題としてエクスポートする<br />';
-$string['nomatching'] = '組合せ問題なし';
-$string['yesmatching'] = '組合せ問題を作成する';
-$string['matching'] = '組合せ問題';
-$string['noquestiontype'] = 'エクスポートする問題形式を選択していません。';
-$string['noactivitytype'] = 'エクスポートする活動形式を選択していません。';
-$string['noselectedset'] = 'エクスポートするQuiletセットを選択していません。';
-$string['matchingquestiontext'] = '左側にあるアイテムと、対応する右側のアイテムと組み合わせる。';
-$string['matchingsubcount'] = '組合せ問題の選択肢の個数';
-$string['matchingsubcount_details'] = '生成される組合せ問題に含まれるマッチングペアの数';
+$string['createquizletimport'] = 'Create Quizlet Activity';
+$string['quizletsetinput'] = 'Quizlet Set ID';
+$string['exporttofileheader'] = 'Export Quizlet Sets';
+$string['exportqqfile'] = 'Export quizlet set(s) to question import file';
+$string['exportqqdirect'] = 'Export quizlet set(s) to question bank';
+$string['exportddfile'] = 'Export quizlet set(s) to drag and drop file';
+$string['exportdddirect'] = 'Export quizlet set(s) to Quizlet Import activities';
+$string['createmquiz'] = 'Create Moodle Quiz';
+$string['shortanswer'] = 'Short answer';
+$string['shortanswer_0'] = 'Short answer (Case insensitive)';
+$string['shortanswer_1'] = 'Short answer (Case sensitive)';
+$string['multichoice'] = 'Multiple Choice';
+$string['defmintime_heading'] = 'Default Minimum Time Per activity (seconds)';
+$string['defcompletion_heading'] = 'Default Completion Settings';
+$string['searchtitles'] = 'Search by Title and Subject';
+$string['searchterms'] = 'Search by Term';
+$string['searchusers'] = 'Search by User';
+$string['searchmysets'] = 'Fetch My Sets';
+$string['exporttofileheader'] = 'Export Quizlet Sets';
+$string['exporttoquestionsheader'] = 'Export To Moodle Questions File(XML Format)';
+$string['exporttoddropheader'] = 'Export To Moodle Drag and Drop File';
+$string['exporttoquestionsdirectheader'] = 'Export To Moodle Question Bank';
+$string['exporttoddropdirectheader'] = 'Export To Moodle QuizletImport Activity';
+$string['selectforexport'] = 'Select Quizlet Set(s) to perform exports from.';
+$string['searchdetails'] = 'Search for Quizlet Sets to perform exports from.';
+$string['exporttoquestions'] = 'Select quizlet set(s) and question options. Press the button to export to questions that can be imported into Moodle. <br />';
+$string['exporttoddrop'] = 'Select quizlet set(s) and activity types. Press the button to export to questions to strings that can be dragged and dropped onto a course page to create quizlet activities quickly.<br />';
+$string['previewset'] = 'Preview selected set (below)';
+$string['noshortanswer'] = 'No Short Answer Questions';
+$string['nomultichoice'] = 'No Multiple Choice Questions';
+$string['answernumberingnone'] = 'Un-numbered';
+$string['activitytypes'] = 'Activity Types';
+$string['selectinstructions'] = 'Select one or more quizlet sets from the list below for export. If no lists are shown, use the search form above to search for Quizlet sets.';
+$string['qchoiceinstructions'] = 'Select at least one question option from the question types below for export.';
+$string['actchoiceinstructions'] = 'Select at least one activity type from the question types below for export.';
+$string['dd_exportlink'] = 'Export to Activity Import File<br />';
+$string['qq_exportlink'] = 'Export to Question Import File<br />';
+$string['dd_direct_exportlink'] = 'Export Activities to Current Course<br />';
+$string['qq_direct_exportlink'] = 'Export Questions to Question Bank<br />';
+$string['nomatching'] = 'No Matching Questions';
+$string['yesmatching'] = 'Make Matching Questions';
+$string['matching'] = 'Matching Questions';
+$string['noquestiontype'] = 'You did not select any question types to export.';
+$string['noactivitytype'] = 'You did not select any activity types to export.';
+$string['noselectedset'] = 'You did not select any quizlet sets to export.';
+$string['matchingquestiontext'] = 'Match the items on the left hand side, with the correct items from the right hand side.';
+$string['matchingsubcount'] = 'Matching Question Sub-Question Count';
+$string['matchingsubcount_details'] = 'The number of matching-pairs to be contained within a single generated matching question.';
 
-$string['selectset'] = 'Quizletセットの選択';
-$string['searchtitles'] = 'タイトルと科目で検索する';
-$string['searchterms'] = '用語で検索する';
-$string['searchusers'] = 'ユーザーで検索する';
-$string['searchmysets'] = '自分のセットを取得する';
-$string['searchtext'] = '検索キーワード';
-$string['answerside'] = '解答にする面';
-$string['termasanswer'] = '前面（カードの定義）(デフォルト)';
-$string['definitionasanswer'] = '裏面、定義があるサイド。';
-$string['answersideinstructions'] = 'フラッシュカードの表はデフォルトでは用語です。裏面が定義です。問題としてエクスポートする際には、用語が正解になります。Quizletセットが形式に合わない場合もあります。そうした場合、定義を解答にすることもできます。画像は解答になりません。そのため、デフォルトオプションが画像を含む場合に最適な設定です。';
+$string['selectset'] = 'Select Quizlet Set';
+$string['searchtitles'] = 'Search by Title and Subject';
+$string['searchterms'] = 'Search by Term';
+$string['searchusers'] = 'Search by User';
+$string['searchmysets'] = 'Fetch My Sets';
+$string['searchtext'] = 'Search Terms';
+$string['answerside'] = 'Answer Side';
+$string['termasanswer'] = 'The front side/term of the card.(default)';
+$string['definitionasanswer'] = 'The reverse side/definition of the card.';
+$string['answersideinstructions'] = 'The front face of a flashcard is by default the "term" and the reverse side the "definition." When exporting as questions, usually the term is the question answer. Some quizlet sets may not suit this. In that case it is possible here to select the "definition" as the answer. NB Images will not be used as question answers, so the default is the best option for Quizlet sets with images.';
 
-$string['coursesection'] = 'コースセクション';
-$string['sectionchoiceinstructions'] = 'Quizlet活動を追加するコースセクションの選択';
+$string['coursesection'] = 'Course Section';
+$string['sectionchoiceinstructions'] = 'Select the course section here to which the quizlet activities will be appended.';
 
-$string['exportedddtocourse'] = 'コース';
-$string['exportedqqtoqbank'] = '問題バンクににエクポートされたQuizletの問題';
+$string['exportedddtocourse'] = 'Exported Quizlet Activity(s) to Course.';
+$string['exportedqqtoqbank'] = 'Exported Quizlet Questions to Question Bank.';
 
-$string['quizletquiz:addinstance'] = 'Quizlet問題ブロックを追加する';
-$string['quizletquiz:myaddinstance'] = 'uizlet問題ブロックを "マイホーム" に追加する';
-$string['quizletquiz:view'] = 'Quizletクイズブロックを表示する';
-$string['quizletquiz:export'] = 'Quizletクイズブロックをエクスポートする';
+$string['quizletquiz:addinstance'] = 'Add Quizlet Quiz block';
+$string['quizletquiz:myaddinstance'] = 'Add Quizlet Quiz block to MyHome';
+$string['quizletquiz:view'] = 'View Quizlet Quiz block';
+$string['quizletquiz:export'] = 'Export Quizlet Quiz block';
