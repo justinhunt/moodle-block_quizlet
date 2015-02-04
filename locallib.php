@@ -156,11 +156,11 @@ class block_quizletquiz_helper {
                           case 'matching':
                             $entrycount = count($entries);
                             $lastentries = $entrycount % $config->matchingsubcount;
-                            $entriesmd = array_chunk($entries,$config->matchingsubcount,true);
+                            $entriesmd = array_chunk($entries,$config->matchingsubcount,false);
                             $entriesmdcount = count($entriesmd);
                             //here we pad the last chunk with additional entries if it is too small
                             if($entriesmdcount>1 && $lastentries > 0){
-                                for($x=0;$x<$lastentries;$x++){
+                                for($x=0;$x<($config->matchingsubcount - $lastentries);$x++){
                                     $entriesmd[$entriesmdcount-1][]=$entriesmd[$entriesmdcount-2][$config->matchingsubcount-$x-1];
                                 }
                             }
@@ -272,7 +272,7 @@ class block_quizletquiz_helper {
        $success=true;
        //get export file
        $filecontent = $this->make_qqfile($quizletsets, $questiontypes, $answerside);
-
+print_r($category);
         $categorycontext = context::instance_by_id($category->contextid);
         $category->context = $categorycontext;
         $contexts = new question_edit_contexts($categorycontext);

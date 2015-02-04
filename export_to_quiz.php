@@ -62,7 +62,7 @@ if( $courseid==0){
 $context = context_course::instance($courseid);
 $PAGE->set_course($course);
 
-$url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$courseid, 'action'=>$action));
+$url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$courseid, 'action'=>$action, 'exporttype'=>$exporttype));
 $PAGE->set_url($url);
 $PAGE->set_heading($SITE->fullname);
 $PAGE->set_pagelayout('course');
@@ -174,6 +174,9 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                         echo $renderer->header();
                         //get default category for this course
                         $category = question_get_default_category($context->id);
+                        if(!$category){
+                        	$category = question_make_default_categories(array('course'=>$context));
+                        }
                         $success = $bqh->export_qq_to_qbank($selectedsets,$questiontypes,$qform_data->answerside, $category, $url);
                     
                     	//prepare continue page
