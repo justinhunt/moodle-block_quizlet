@@ -272,7 +272,6 @@ class block_quizletquiz_helper {
        $success=true;
        //get export file
        $filecontent = $this->make_qqfile($quizletsets, $questiontypes, $answerside);
-print_r($category);
         $categorycontext = context::instance_by_id($category->contextid);
         $category->context = $categorycontext;
         $contexts = new question_edit_contexts($categorycontext);

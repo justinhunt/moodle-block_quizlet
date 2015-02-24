@@ -167,6 +167,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                     //if we have questions, export to file
                     if($exporttype == 'qq'){
                         $bqh->export_qqfile($selectedsets,$questiontypes,$qform_data->answerside);
+						exit;
                     
                     //or we export to questionbank    
                     }else{
@@ -181,11 +182,12 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                     
                     	//prepare continue page
 						 $params =  array('courseid' => $courseid);
-						 $nexturl = new moodle_url('/question/edit.php', $params);
+						 $urlone = new moodle_url('/question/edit.php', $params);
+						 $labelone = get_string('gotoquestionbank','block_quizletquiz');
+						 $labeltwo = get_string('returntoquizletblock','block_quizletquiz');
 						 $nextmessage = get_string('exportedqqtoqbank', 'block_quizletquiz');
-						 echo $renderer->display_continue_page($nexturl,$nextmessage);
-                        
-                        echo $renderer->footer();
+						 echo $renderer->display_continue_options($urlone,$labelone,$url,$labeltwo,$nextmessage);
+						 echo $renderer->footer();
                         exit;
                     }
                     //the selectesets won't come through in form data, for validation reasons I think

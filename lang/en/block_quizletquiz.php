@@ -17,7 +17,7 @@ $string['noglossaries'] = 'No glossaries in this course';
 $string['nolink'] = 'Remove glossary autolinks';
 $string['notyetconfigured'] = 'Please <b>Turn editing on</b> to configure this block.';
 $string['notyetconfiguredediting'] = 'Please configure this block using the edit icon.';
-$string['pluginname'] = 'QuizletQuiz';
+$string['pluginname'] = 'Quizlet';
 $string['questiontype'] = 'Question type:';
 $string['questiontype_help'] = 'Quizlet entries can be exported to the Quiz Questions bank either as multiple choice or short answer questions.
 Multiple choice questions will consist of the following elements:
@@ -142,6 +142,9 @@ $string['sectionchoiceinstructions'] = 'Select the course section here to which 
 
 $string['exportedddtocourse'] = 'Exported Quizlet Activity(s) to Course.';
 $string['exportedqqtoqbank'] = 'Exported Quizlet Questions to Question Bank.';
+
+$string['gotoquestionbank'] = 'Go to Question Bank';
+$string['returntopreviouspage'] = 'Return to Previous Page';
 
 $string['quizletquiz:addinstance'] = 'Add Quizlet Quiz block';
 $string['quizletquiz:myaddinstance'] = 'Add Quizlet Quiz block to MyHome';

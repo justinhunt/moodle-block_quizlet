@@ -143,6 +143,9 @@ $string['sectionchoiceinstructions'] = 'Select the course section here to which 
 $string['exportedddtocourse'] = 'Exported Quizlet Activity(s) to Course.';
 $string['exportedqqtoqbank'] = 'Exported Quizlet Questions to Question Bank.';
 
+$string['gotoquestionbank'] = 'Go to Question Bank';
+$string['returntopreviouspage'] = 'Return to Previous Page';
+
 $string['quizletquiz:addinstance'] = 'Add Quizlet Quiz block';
 $string['quizletquiz:myaddinstance'] = 'Add Quizlet Quiz block to MyHome';
 $string['quizletquiz:view'] = 'View Quizlet Quiz block';

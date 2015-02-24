@@ -41,6 +41,11 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
 		$nextmessage = $this->output->heading($message, 3, 'main');
 		return $nextmessage . $this->output->continue_button($nexturl);
 	}
+	
+	function display_continue_options($urlone,$labelone,$urltwo,$labeltwo,$message){
+		$nextmessage = $this->output->heading($message, 3, 'main');
+		return $nextmessage . $this->output->single_button($urlone, $labelone) . $this->output->single_button($urltwo, $labeltwo) ;
+	}
 
 
     function echo_quizlet_search_form($form){
