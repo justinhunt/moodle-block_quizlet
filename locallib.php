@@ -480,6 +480,12 @@ class block_quizletquiz_helper {
      */
     function writetext($raw, $ilev = 0, $short = true) {
         $indent = str_repeat('  ', $ilev);
+		
+		//tweak new lines
+		if(!empty($raw)){
+			$raw = str_replace("\n",'<br />',$raw);
+			$raw = str_replace("\r\n",'<br />',$raw);
+		}
 
         // if required add CDATA tags
         if (!empty($raw) and (htmlspecialchars($raw) != $raw)) {

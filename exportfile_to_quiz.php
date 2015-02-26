@@ -272,8 +272,13 @@
      */
     function writetext($raw, $ilev = 0, $short = true) {
         $indent = str_repeat('  ', $ilev);
-
-        // if required add CDATA tags
+		
+		//tweak new lines
+		if(!empty($raw)){
+			$raw = str_replace('\n','<br \>',$raw);
+			$raw = str_replace('\r\\n','<br \>',$raw);
+		}
+        // if required add CDATA tags (if we have html or new line tags)
         if (!empty($raw) and (htmlspecialchars($raw) != $raw)) {
             $raw = "<![CDATA[$raw]]>";
         }
