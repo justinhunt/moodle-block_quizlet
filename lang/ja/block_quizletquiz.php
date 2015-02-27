@@ -30,7 +30,7 @@ $string['questiontype_help'] = 'Quizletのエントリーは小テストの問�
 * 大文字小文字の区別をしない
 ** 例：　"Moodle" "mooodle" いずれも正解とする
 * 大文字小文字を区別する
-** 例：　"Moodle"が正解の場合、"moodle"は不正解とする。'
+** 例：　"Moodle"が正解の場合、"moodle"は不正解とする。';
 
 $string['random'] = 'ランダムに';
 $string['selectquizletset'] = 'エクスポートするQuizletセットを選択する';
