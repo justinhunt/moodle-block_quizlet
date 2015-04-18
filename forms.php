@@ -165,8 +165,8 @@ class block_quizletquiz_export_form extends block_quizletquiz_qq_form  {
          $attributes = array();
         $sa_array=array();
         $sa_array[] =& $mform->createElement('radio', 'shortanswer', '', get_string('noshortanswer', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_NO, $attributes);
-        $sa_array[] =& $mform->createElement('radio', 'shortanswer', '', get_string('shortanswer_0', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_SA_CASE, $attributes);
-        $sa_array[] =& $mform->createElement('radio', 'shortanswer', '', get_string('shortanswer_1', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_SA_NOCASE, $attributes);
+        $sa_array[] =& $mform->createElement('radio', 'shortanswer', '', get_string('shortanswer_1', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_SA_CASE, $attributes);
+        $sa_array[] =& $mform->createElement('radio', 'shortanswer', '', get_string('shortanswer_0', 'block_quizletquiz'), BLOCK_QUIZLETQUIZ_SA_NOCASE, $attributes);
         $sa_arraytable = $this->tablify($sa_array,1, 'sa_table',false);
         
         //matching question

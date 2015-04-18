@@ -145,6 +145,7 @@ $string['exportedqqtoqbank'] = 'Exported Quizlet Questions to Question Bank.';
 
 $string['gotoquestionbank'] = 'Go to Question Bank';
 $string['returntopreviouspage'] = 'Return to Previous Page';
+$string['returntoquizletblock'] = 'Return to Previous Page';
 
 $string['quizletquiz:addinstance'] = 'Add Quizlet Quiz block';
 $string['quizletquiz:myaddinstance'] = 'Add Quizlet Quiz block to MyHome';
