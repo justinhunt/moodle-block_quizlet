@@ -23,7 +23,7 @@
 	$context = context_user::instance($USER->id);
 
 
-   // require_capability('block/quizletquiz:export', $context);
+   // require_capability('block/quizlet:export', $context);
 	/*
 
     $filename = clean_filename(strip_tags(format_string($glossary->name,true)).'.xml');

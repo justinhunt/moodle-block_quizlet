@@ -22,19 +22,19 @@
 
 /**
  * Block Quizlet Quiz renderer.
- * @package   block_quizletquiz
+ * @package   block_quizlet
  * @copyright 2014 Justin Hunt (poodllsupport@gmail.com)
  * @author    Justin Hunt
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_quizletquiz_renderer extends plugin_renderer_base {	
+class block_quizlet_renderer extends plugin_renderer_base {
 	
 	function display_error($qmessage) {
 		 echo $qmessage;
 	}//end of func
 
 	function display_auth_link($authlink){
-		return html_writer::link($authlink, get_string('quizletlogin', 'block_quizletquiz'));
+		return html_writer::link($authlink, get_string('quizletlogin', 'block_quizlet'));
 	}
 
 	function display_continue_page($nexturl, $message){
@@ -49,7 +49,7 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
 
 
     function echo_quizlet_search_form($form){
-		echo $this->output->heading(get_string('selectset','block_quizletquiz'), 3, 'main');
+		echo $this->output->heading(get_string('selectset','block_quizlet'), 3, 'main');
 		echo $this->output->box_start('generalbox');
 		$form->display();
 		echo $this->output->box_end();
@@ -61,27 +61,27 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
                 }
                 switch($exporttype){
                     case 'qq':
-                        // echo get_string('exporttofile', 'block_quizletquiz');
-                         echo $this->output->heading(get_string('exportqqfile', 'block_quizletquiz'), 2, 'main');
+                        // echo get_string('exporttofile', 'block_quizlet');
+                         echo $this->output->heading(get_string('exportqqfile', 'block_quizlet'), 2, 'main');
                         break;
                     
                     case 'qq_direct':
-                        // echo get_string('exporttofile', 'block_quizletquiz');
-                        echo $this->output->heading(get_string('exportqqdirect', 'block_quizletquiz'), 2, 'main');
+                        // echo get_string('exporttofile', 'block_quizlet');
+                        echo $this->output->heading(get_string('exportqqdirect', 'block_quizlet'), 2, 'main');
                         break;
 
                     case 'dd':
-                        // echo get_string('exporttoddrop', 'block_quizletquiz');
-                         echo $this->output->heading(get_string('exportddfile', 'block_quizletquiz'), 2, 'main');
+                        // echo get_string('exporttoddrop', 'block_quizlet');
+                         echo $this->output->heading(get_string('exportddfile', 'block_quizlet'), 2, 'main');
                          break;
                     
                     case 'dd_direct':
-                        // echo get_string('exporttoddrop', 'block_quizletquiz');
-                        echo $this->output->heading(get_string('exportdddirect', 'block_quizletquiz'), 2, 'main');
+                        // echo get_string('exporttoddrop', 'block_quizlet');
+                        echo $this->output->heading(get_string('exportdddirect', 'block_quizlet'), 2, 'main');
                         break;
                         
                 }
-                //echo $this->output->heading(get_string('exporttofileheader', 'block_quizletquiz'), 3, 'main');
+                //echo $this->output->heading(get_string('exporttofileheader', 'block_quizlet'), 3, 'main');
                 echo $this->output->box_start('generalbox');
 		$form->display();
 		echo $this->output->box_end();
@@ -89,8 +89,8 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
 	/*
 	function echo_ddrop_export_form($form){
 
-		echo $this->output->heading(get_string('exporttoddropheader', 'block_quizletquiz'), 3, 'main');
-		echo get_string('exporttoddrop', 'block_quizletquiz');
+		echo $this->output->heading(get_string('exporttoddropheader', 'block_quizlet'), 3, 'main');
+		echo get_string('exporttoddrop', 'block_quizlet');
 		echo $this->output->box_start('generalbox');
 		$form->display();
 		echo $this->output->box_end();
@@ -108,7 +108,7 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
             $opts['height'] = 350;
             
             $jsoptions = array($opts);
-            $this->page->requires->js_init_call('M.block_quizletquiz.iframehelper.init', $jsoptions, false);
+            $this->page->requires->js_init_call('M.block_quizlet.iframehelper.init', $jsoptions, false);
             //output the iframe
             $ret = $this->output->box_start('generalbox');
            // $ret.= "<iframe id='$iframename' name='$iframename' src=\"\" height=\"350\" width=\"550\" style=\"border:0;\"></iframe>";
@@ -118,7 +118,7 @@ class block_quizletquiz_renderer extends plugin_renderer_base {
             $iframe_atts['src']='';
             $iframe_atts['height']=1;
             $iframe_atts['width']=1;
-            $iframe_atts['class']='block_quizletquiz_iframepreview';
+            $iframe_atts['class']='block_quizlet_iframepreview';
             $iframe = html_writer::tag('iframe', '', $iframe_atts);
             $ret .= $iframe;
             $ret .= $this->output->box_end();

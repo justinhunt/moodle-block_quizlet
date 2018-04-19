@@ -16,12 +16,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for block quizletquiz
+ * Internal library of functions for block quizlet
  *
  * All the quizletimport specific functions, needed to implement the module
  * logic, should go here. Never include this file from your lib.php!
  *
- * @package    block_quizletquiz
+ * @package    block_quizlet
  * @copyright  2014 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,7 +46,7 @@ require_once($CFG->libdir.'/datalib.php');
  * iii) quizlet uses access token and username in data requests, facebook etc use access_token and secrets
  * 
  *
- * @package    block_quizletquiz
+ * @package    block_quizlet
  * @copyright  2014 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -85,7 +85,7 @@ class quizlet_qq {
     	 global $CFG;
 
 
-	 $config = get_config('block_quizletquiz');
+	 $config = get_config('block_quizlet');
          $args = array(
 		'api_scope' => 'read%20write_set',
             );
@@ -451,16 +451,16 @@ class quizlet_search_form_qq extends moodleform {
 
         $mform =& $this->_form;
 
-     $mform->addElement('text', 'searchtext', get_string('searchtext', 'block_quizletquiz'),array('size'=>64));
+     $mform->addElement('text', 'searchtext', get_string('searchtext', 'block_quizlet'),array('size'=>64));
      $mform->setType('searchtext',PARAM_TEXT);
      $mform->addElement('hidden', 'courseid');
      $mform->addElement('hidden', 'caller');
      $mform->setType('courseid',PARAM_INT);
      $mform->setType('caller',PARAM_URL);
      $buttons = array(); 
-     $buttons[] =& $mform->createElement('submit', 'searchtype',  get_string("searchmysets", "block_quizletquiz"));
-     $buttons[] =& $mform->createElement('submit', 'searchtype',  get_string("searchtitles", "block_quizletquiz"));
-     $buttons[] =& $mform->createElement('submit', 'searchtype',  get_string("searchusers", "block_quizletquiz"));
+     $buttons[] =& $mform->createElement('submit', 'searchtype',  get_string("searchmysets", "block_quizlet"));
+     $buttons[] =& $mform->createElement('submit', 'searchtype',  get_string("searchtitles", "block_quizlet"));
+     $buttons[] =& $mform->createElement('submit', 'searchtype',  get_string("searchusers", "block_quizlet"));
       $mform->addElement('group', 'buttonsgrp', '', $buttons, ' ', false);
 
     }

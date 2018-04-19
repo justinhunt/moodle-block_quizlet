@@ -147,7 +147,7 @@ $string['gotoquestionbank'] = 'Go to Question Bank';
 $string['returntopreviouspage'] = 'Return to Previous Page';
 $string['returntoquizletblock'] = 'Return to Previous Page';
 
-$string['quizletquiz:addinstance'] = 'Add Quizlet Quiz block';
-$string['quizletquiz:myaddinstance'] = 'Add Quizlet Quiz block to MyHome';
-$string['quizletquiz:view'] = 'View Quizlet Quiz block';
-$string['quizletquiz:export'] = 'Export Quizlet Quiz block';
+$string['quizlet:addinstance'] = 'Add Quizlet Quiz block';
+$string['quizlet:myaddinstance'] = 'Add Quizlet Quiz block to MyHome';
+$string['quizlet:view'] = 'View Quizlet Quiz block';
+$string['quizlet:export'] = 'Export Quizlet Quiz block';

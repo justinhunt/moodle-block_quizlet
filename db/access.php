@@ -17,7 +17,7 @@
 /**
  * Export quizlet set(s) to quiz
  *
- * @package    block_quizletquiz
+ * @package    block_quizlet
  * @copyright  2014 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-	'block/quizletquiz:myaddinstance' => array(
+	'block/quizlet:myaddinstance' => array(
 				'captype' => 'write',
 				'contextlevel' => CONTEXT_SYSTEM,
 				'archetypes' => array(
@@ -36,7 +36,7 @@ $capabilities = array(
 				'clonepermissionsfrom' => 'moodle/my:manageblocks'
 			),
 
-     'block/quizletquiz:addinstance' => array(
+     'block/quizlet:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
 
         'captype' => 'write',
@@ -49,7 +49,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
 
-    'block/quizletquiz:export' => array(
+    'block/quizlet:export' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,

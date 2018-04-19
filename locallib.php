@@ -21,7 +21,7 @@ require_once($CFG->dirroot . '/course/lib.php');
 /**
  * Quizlet Quiz
  *
- * @package    block_quizletquiz
+ * @package    block_quizlet
  * @author     Justin Hunt <poodllsupport@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
  * @copyright  (C) 2014 onwards Justin Hunt
@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/course/lib.php');
  *
  */
 
-class block_quizletquiz_helper {
+class block_quizlet_helper {
 
 	private $exporttype;
 	private $matchtermscount = 6;
@@ -37,7 +37,7 @@ class block_quizletquiz_helper {
      * constructor. make sure we have the right course
      * @param integer courseid id
 	*/
-	function block_quizletquiz_helper($exporttype=false) {
+	function block_quizlet_helper($exporttype=false) {
             $this->exporttype=$exporttype;
         }
    
@@ -52,7 +52,7 @@ class block_quizletquiz_helper {
     
     //if question import export, make file content
     function make_qqfile($quizletsets,$questiontypes, $answerside){
-         $config = get_config('block_quizletquiz'); 
+         $config = get_config('block_quizlet');
         //Initialize Quizlet
 	//assumption here is that we authenticated back on the previous page
 	 $args = array( 'api_scope' => 'read');
@@ -346,7 +346,7 @@ class block_quizletquiz_helper {
             $ret .= "  <question type=\"$questiontype\">\n";
             $ret .= "    <name>" . $this->writetext($qname,2,true ). "</name>\n";
             $ret .= "    <questiontext format=\"$qtformat\">\n";
-            $ret .= $this->writetext(get_string('matchingquestiontext','block_quizletquiz'),2,false);
+            $ret .= $this->writetext(get_string('matchingquestiontext','block_quizlet'),2,false);
             $ret .= "    </questiontext>\n";
             foreach($allentries as $entry){
                 if($answerside==0){

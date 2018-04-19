@@ -18,7 +18,7 @@
 /**
  * Form for editing HTML block instances.
  *
- * @package   quizletquiz
+ * @package   quizlet
  * @copyright 2014 Justin Hunt
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,7 +31,7 @@
  */
 
 
-class block_quizletquiz_edit_form extends block_edit_form {
+class block_quizlet_edit_form extends block_edit_form {
     protected function specific_definition($mform) {
 
 

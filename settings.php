@@ -16,10 +16,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * quizletquiz module admin settings and defaults
+ * quizlet module admin settings and defaults
  *
  * @package    blocks
- * @subpackage quizletquiz
+ * @subpackage quizlet
  * @copyright  2014 Justin Hunt (http://poodll.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,14 +31,14 @@ if ($ADMIN->fulltree) {
 
     //--- modedit defaults -----------------------------------------------------------------------------------
 
-	  $settings->add(new admin_setting_configtext('block_quizletquiz/apikey',
-        get_string('apikey', 'block_quizletquiz'), get_string('apikeyexplain', 'block_quizletquiz'), 'YOUR API KEY', PARAM_TEXT));
+	  $settings->add(new admin_setting_configtext('block_quizlet/apikey',
+        get_string('apikey', 'block_quizlet'), get_string('apikeyexplain', 'block_quizlet'), 'YOUR API KEY', PARAM_TEXT));
 		
-	 $settings->add(new admin_setting_configtext('block_quizletquiz/apisecret',
-        get_string('apisecret', 'block_quizletquiz'), get_string('apisecretexplain', 'block_quizletquiz'), 'YOUR API SECRET', PARAM_TEXT));
+	 $settings->add(new admin_setting_configtext('block_quizlet/apisecret',
+        get_string('apisecret', 'block_quizlet'), get_string('apisecretexplain', 'block_quizlet'), 'YOUR API SECRET', PARAM_TEXT));
 	
-        $settings->add(new admin_setting_configtext('block_quizletquiz/matchingsubcount', 
-			get_string('matchingsubcount', 'block_quizletquiz'),get_string('matchingsubcount_details', 'block_quizletquiz') , '6', PARAM_INT)); 
+        $settings->add(new admin_setting_configtext('block_quizlet/matchingsubcount',
+			get_string('matchingsubcount', 'block_quizlet'),get_string('matchingsubcount_details', 'block_quizlet') , '6', PARAM_INT));
          
 
 }

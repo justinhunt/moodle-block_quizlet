@@ -1,32 +1,32 @@
-.block_quizletquiz_iframepreview {border: 0;}
+.block_quizlet_iframepreview {border: 0;}
 
-table.quizletquiz_form_table{
+table.quizlet_form_table{
     border: 1px solid black;
     table-layout: fixed;
     width: 500px;
 }
 /*
-td.quizletquiz_ID_col_0{
+td.quizlet_ID_col_0{
 	text-align: center;
 }
-td.quizletquiz_ID_col_1{
+td.quizlet_ID_col_1{
 	text-align: right;
 }
-td.quizletquiz_ID_col_2{
+td.quizlet_ID_col_2{
 	text-align: left;
 }
 */
 
-td.quizletquiz_form_cell{
+td.quizlet_form_cell{
 	border: 1px solid black;
 }
 
-th.quizletquiz_form_cell{
+th.quizlet_form_cell{
 	border: 1px solid black;
 	text-align: center;
 }
 
-input[type="button"].block_quizletquiz_previewbutton {
+input[type="button"].block_quizlet_previewbutton {
    float: left;
 }
 

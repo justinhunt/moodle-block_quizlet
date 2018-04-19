@@ -17,15 +17,15 @@
  * JavaScript library for the quizletimport module.
  *
  * @package    block
- * @subpackage quizletquiz
+ * @subpackage quizlet
  * @copyright  2014 Justin Hunt  {@link http://poodll.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-M.block_quizletquiz = M.block_quizletquiz || {};
+M.block_quizlet = M.block_quizlet || {};
 
 
-M.block_quizletquiz.iframehelper = {
+M.block_quizlet.iframehelper = {
 	IF: null,
 	SB: null,
         IF_width: 550,
@@ -38,24 +38,24 @@ M.block_quizletquiz.iframehelper = {
      */
     init: function(Y,opts) {
     	// console.log('quizletimport:start:' + start +':countdown:' + showcountdown + ':showcompletion:' + showcompletion);
-        M.block_quizletquiz.iframehelper.IF = Y.one('#' + opts['iframename']);
-        M.block_quizletquiz.iframehelper.IF_width = opts['width'];
-        M.block_quizletquiz.iframehelper.IF_height = opts['height'];
+        M.block_quizlet.iframehelper.IF = Y.one('#' + opts['iframename']);
+        M.block_quizlet.iframehelper.IF_width = opts['width'];
+        M.block_quizlet.iframehelper.IF_height = opts['height'];
    
     },
     
     update: function(selectboxref){
         
-    	//var quizletset = M.block_quizletquiz.iframehelper.SB.get('value');
+    	//var quizletset = M.block_quizlet.iframehelper.SB.get('value');
         var sbr = Y.one('#' + selectboxref);
     	var quizletset = sbr.get('value');
         if(quizletset){
     		quizletset = quizletset.split('-')[0];
     	}
     	var newsrc = 'https://quizlet.com/' + quizletset + '/flashcards/embedv2';
-        var IF =  M.block_quizletquiz.iframehelper.IF;
-        IF.setAttribute('width',M.block_quizletquiz.iframehelper.IF_width);
-        IF.setAttribute('height',M.block_quizletquiz.iframehelper.IF_height);
+        var IF =  M.block_quizlet.iframehelper.IF;
+        IF.setAttribute('width',M.block_quizlet.iframehelper.IF_width);
+        IF.setAttribute('height',M.block_quizlet.iframehelper.IF_height);
     	IF.setAttribute('src',newsrc);
     }
 

@@ -1,9 +1,9 @@
-<?php // $Id: block_quizletquiz.php,v 1.0. 2010/11/27 01:01:01 rezeau Exp $
+<?php // $Id: block_quizlet.php,v 1.0. 2010/11/27 01:01:01 rezeau Exp $
 
-class block_quizletquiz extends block_base {
+class block_quizlet extends block_base {
     function init() {
-        $this->title = get_string('pluginname','block_quizletquiz');
-       // $SESSION->block_quizletquiz->status = '';
+        $this->title = get_string('pluginname','block_quizlet');
+       // $SESSION->block_quizlet->status = '';
     }
     
     function has_config() {
@@ -12,7 +12,7 @@ class block_quizletquiz extends block_base {
 
     function specialization() {
         global $CFG, $DB, $OUTPUT, $PAGE;
-       // $this->config->title = get_string('pluginname','block_quizletquiz');
+       // $this->config->title = get_string('pluginname','block_quizlet');
         $course = $this->page->course;
         $this->course = $course;
     }
@@ -30,24 +30,24 @@ class block_quizletquiz extends block_base {
         // set view block permission to course:mod/glossary:export to prevent students etc to view this block
         $course = $this->page->course; 
         $context = context_course::instance($course->id);
-        if (!has_capability('block/quizletquiz:export', $context)) {
+        if (!has_capability('block/quizlet:export', $context)) {
             return;
         }
         
        // if(($this->content == null)){
             
             $this->content = new stdClass;
-            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'qq'));
-            $this->content->text = html_writer::link($url,get_string('qq_exportlink','block_quizletquiz')); 
+            $url = new moodle_url('/blocks/quizlet/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'qq'));
+            $this->content->text = html_writer::link($url,get_string('qq_exportlink','block_quizlet'));
  
-            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'qq_direct'));
-            $this->content->text .= html_writer::link($url,get_string('qq_direct_exportlink','block_quizletquiz'));  
+            $url = new moodle_url('/blocks/quizlet/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'qq_direct'));
+            $this->content->text .= html_writer::link($url,get_string('qq_direct_exportlink','block_quizlet'));
             
-            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd'));
-            $this->content->text .= html_writer::link($url,get_string('dd_exportlink','block_quizletquiz'));     
+            $url = new moodle_url('/blocks/quizlet/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd'));
+            $this->content->text .= html_writer::link($url,get_string('dd_exportlink','block_quizlet'));
             
-            $url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd_direct'));
-            $this->content->text .= html_writer::link($url,get_string('dd_direct_exportlink','block_quizletquiz'));
+            $url = new moodle_url('/blocks/quizlet/export_to_quiz.php', array('courseid'=>$course->id,'exporttype'=>'dd_direct'));
+            $this->content->text .= html_writer::link($url,get_string('dd_direct_exportlink','block_quizlet'));
         
             
             $this->content->footer = '';

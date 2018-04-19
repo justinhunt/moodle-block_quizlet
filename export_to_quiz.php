@@ -22,7 +22,7 @@
 /**
  * Export to Quiz for Quizlet Quiz Block
  *
- * @package    block_quizletquiz
+ * @package    block_quizlet
  * @author     Justin Hunt <poodllsupport@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
  * @copyright  (C) 1999 onwards Justin Hunt  http://poodll.com
@@ -62,7 +62,7 @@ if( $courseid==0){
 $context = context_course::instance($courseid);
 $PAGE->set_course($course);
 
-$url = new moodle_url('/blocks/quizletquiz/export_to_quiz.php', array('courseid'=>$courseid, 'action'=>$action, 'exporttype'=>$exporttype));
+$url = new moodle_url('/blocks/quizlet/export_to_quiz.php', array('courseid'=>$courseid, 'action'=>$action, 'exporttype'=>$exporttype));
 $PAGE->set_url($url);
 $PAGE->set_heading($SITE->fullname);
 $PAGE->set_pagelayout('course');
@@ -73,7 +73,7 @@ $search_data = $search_form->get_data();
 
 
 //get our renderer
-$renderer = $PAGE->get_renderer('block_quizletquiz');
+$renderer = $PAGE->get_renderer('block_quizlet');
 
   //Initialize Quizlet and deal with oauth etc
 	//i  - send off to auth screen
@@ -133,7 +133,7 @@ if($searchresult['success']){
 }
 
  //get our quizlet quiz helper class thingy
- $bqh = new block_quizletquiz_helper();
+ $bqh = new block_quizlet_helper();
 
 
 //get sections for display in section box
@@ -141,26 +141,26 @@ $sections = $bqh->fetch_section_list();
 
 //deal with question export form
  $badmessage =false;
-$qform = new block_quizletquiz_export_form(null,array('exporttype'=>$exporttype,'qsets'=>$usedata,'sections'=>$sections));
+$qform = new block_quizlet_export_form(null,array('exporttype'=>$exporttype,'qsets'=>$usedata,'sections'=>$sections));
 
 if($action=='qq_dataexport' && !$qform->is_cancelled()){
     $qform_data = $qform->get_data();
     
     //if we have not selected set, refuse to proceed
     if(count($selectedsets)==0){
-        $badmessage = get_string('noselectedset', 'block_quizletquiz');
+        $badmessage = get_string('noselectedset', 'block_quizlet');
     }else{
         switch($exporttype){
             case 'qq':
             case 'qq_direct':
                 $questiontypes = array();
-                if($qform_data->multichoice !== BLOCK_QUIZLETQUIZ_NO){
+                if($qform_data->multichoice !== BLOCK_QUIZLET_NO){
                     $questiontypes[] = $qform_data->multichoice;
                 }
-                 if($qform_data->shortanswer !== BLOCK_QUIZLETQUIZ_NO){
+                 if($qform_data->shortanswer !== BLOCK_QUIZLET_NO){
                     $questiontypes[] = $qform_data->shortanswer;
                 }
-                if($qform_data->matching !== BLOCK_QUIZLETQUIZ_NO){
+                if($qform_data->matching !== BLOCK_QUIZLET_NO){
                     $questiontypes[] = $qform_data->matching;
                 }
                 if(count($questiontypes)>0){
@@ -183,9 +183,9 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                     	//prepare continue page
 						 $params =  array('courseid' => $courseid);
 						 $urlone = new moodle_url('/question/edit.php', $params);
-						 $labelone = get_string('gotoquestionbank','block_quizletquiz');
-						 $labeltwo = get_string('returntoquizletblock','block_quizletquiz');
-						 $nextmessage = get_string('exportedqqtoqbank', 'block_quizletquiz');
+						 $labelone = get_string('gotoquestionbank','block_quizlet');
+						 $labeltwo = get_string('returntoquizletblock','block_quizlet');
+						 $nextmessage = get_string('exportedqqtoqbank', 'block_quizlet');
 						 echo $renderer->display_continue_options($urlone,$labelone,$url,$labeltwo,$nextmessage);
 						 echo $renderer->footer();
                         exit;
@@ -193,7 +193,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                     //the selectesets won't come through in form data, for validation reasons I think
                     // $bqh->export_qqfile($qform_data->selectedsets,$qform_data->multichoice,$qform_data->shortanswer)
                 }else{
-                    $badmessage = get_string('noquestiontype', 'block_quizletquiz');
+                    $badmessage = get_string('noquestiontype', 'block_quizlet');
                 }
 
                 break;
@@ -217,7 +217,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
 						 //prepare continue page
 						 $params =  array('id' => $courseid);
 						 $nexturl = new moodle_url('/course/view.php', $params);
-						 $nextmessage = get_string('exportedddtocourse', 'block_quizletquiz');
+						 $nextmessage = get_string('exportedddtocourse', 'block_quizlet');
 						echo $renderer->display_continue_page($nexturl,$nextmessage);
                         
                         echo $renderer->footer();
@@ -226,7 +226,7 @@ if($action=='qq_dataexport' && !$qform->is_cancelled()){
                    //the selectedsets won't come through in form data, for validation reasons I think
                     //$bqh->export_ddfile($qform_data->selectedsets,$qform_data->activitytype);
                 }else{
-                    $badmessage = get_string('noactivitytype', 'block_quizletquiz');
+                    $badmessage = get_string('noactivitytype', 'block_quizlet');
                 }
                 break;
 
@@ -245,9 +245,9 @@ echo $renderer->header();
 $qform_data = new stdClass();
 $qform_data->courseid = $courseid;
 $qform_data->exporttype = $exporttype;
-$qform_data->multichoice = BLOCK_QUIZLETQUIZ_NO;
-$qform_data->shortanswer = BLOCK_QUIZLETQUIZ_NO;
-$qform_data->matching = BLOCK_QUIZLETQUIZ_NO;
+$qform_data->multichoice = BLOCK_QUIZLET_NO;
+$qform_data->shortanswer = BLOCK_QUIZLET_NO;
+$qform_data->matching = BLOCK_QUIZLET_NO;
 $qform->set_data($qform_data);
 
 //echo forms
@@ -256,7 +256,7 @@ $renderer->echo_question_export_form($qform, $exporttype, $badmessage);
 //$renderer->echo_ddrop_export_form($ddform);
 
 //display preview iframe
-echo $renderer->display_preview_iframe(BLOCK_QUIZLETQUIZ_IFRAME_NAME);
+echo $renderer->display_preview_iframe(BLOCK_QUIZLET_IFRAME_NAME);
 
 //echo footer
 echo $renderer->footer();

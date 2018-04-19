@@ -4,15 +4,15 @@ How to install on a moodle 2.x site.
 -------------------------------------------
 Method One
 1.- Visit your Moodle site's "site administration -> plugins -> install plugins" page, 
-2.- Choose "block" and drag the quizletquiz.zip folder into the "ZIP Package" area.
+2.- Choose "block" and drag the quizlet.zip folder into the "ZIP Package" area.
 3.- Follow the on screen instructions to complete the installation 
 NB If the "blocks" folder does not have the correct permissions you will see a warning message
 and will need to change the permissions, or use Method Two
 
 Method Two
-1.- Unzip the quizletquiz.zip archive to your local computer.
-2.- This should give you a folder named "quizletquiz".
-3.- Upload the "quizletquiz" folder to your [moodle site]/blocks/ folder using FTP or CPanel.
+1.- Unzip the quizlet.zip archive to your local computer.
+2.- This should give you a folder named "quizlet".
+3.- Upload the "quizlet" folder to your [moodle site]/blocks/ folder using FTP or CPanel.
 4.- Visit your Admin/Notifications page so that the block gets installed. 
  This will not create any tables in your moodle database.
 

@@ -146,7 +146,7 @@ $string['exportedqqtoqbank'] = '問題バンクににエクポートされたQui
 $string['gotoquestionbank'] = '問題バンクへ';
 $string['returntopreviouspage'] = '前のページへ';
 
-$string['quizletquiz:addinstance'] = 'Quizlet問題ブロックを追加する';
-$string['quizletquiz:myaddinstance'] = 'uizlet問題ブロックを "マイホーム" に追加する';
-$string['quizletquiz:view'] = 'Quizletクイズブロックを表示する';
-$string['quizletquiz:export'] = 'Quizletクイズブロックをエクスポートする';
+$string['quizlet:addinstance'] = 'Quizlet問題ブロックを追加する';
+$string['quizlet:myaddinstance'] = 'uizlet問題ブロックを "マイホーム" に追加する';
+$string['quizlet:view'] = 'Quizletクイズブロックを表示する';
+$string['quizlet:export'] = 'Quizletクイズブロックをエクスポートする';
