@@ -37,7 +37,7 @@ class block_quizlet_helper {
      * constructor. make sure we have the right course
      * @param integer courseid id
 	*/
-	function block_quizlet_helper($exporttype=false) {
+	function __construct($exporttype=false) {
             $this->exporttype=$exporttype;
         }
    
